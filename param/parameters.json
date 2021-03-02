@@ -1,0 +1,6 @@
+{
+  "device": "cpu",
+  "learning_rate": 1e-3,
+  "num_batches": 5e4,
+  "batch_size": 1e3
+}
