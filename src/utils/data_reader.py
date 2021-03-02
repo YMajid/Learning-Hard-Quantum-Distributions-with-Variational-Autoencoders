@@ -1,7 +1,7 @@
 import csv
 
 
-def data_reader(csv_path='even_mnist.csv'):
+def data_reader(csv_path):
     """
     Reads CSV file from given path and returns a features matrix and labels vector.
     Args:
