@@ -1,12 +1,12 @@
-## Hard state generator
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
 
 class HardStateGenerator:
-    def __init__(self, n):
+    def __init__(self, n, L):
         self.n = n
+        self.L = L
 
     # Get the factorial representaiton of the number s
     def get_factoradic(self, s):
@@ -37,8 +37,8 @@ class HardStateGenerator:
         )
 
     # All permutations with repetition: Total permutations = L PermRep n**2
-    def get_permutations_with_repetition(self, L):
-        x = np.linspace(0, L - 1, L).astype(int)
+    def get_permutations_with_repetition(self):
+        x = np.linspace(0, self.L - 1, self.L).astype(int)
         perms = [p for p in itertools.product(x, repeat=self.n ** 2)]
         return np.asarray(perms)
 
@@ -56,9 +56,9 @@ class HardStateGenerator:
         return binary_permutation_matrices_flat
 
     # Full distribution: mode='full', Single sample: mode='sample'
-    def get_hard_distribution(self, L, mode="full"):
+    def get_hard_distribution(self, mode="full"):
         if mode == "full":
-            y_permutations = self.get_permutations_with_repetition(L)  # All of y
+            y_permutations = self.get_permutations_with_repetition()  # All of y
         #    if mode == 'sample':
         #        y_permutations = np.expand_dims(np.random.choice(L,self.n**2,replace=True),axis=1)
         P = np.zeros(y_permutations.shape[0])
@@ -67,11 +67,11 @@ class HardStateGenerator:
             if i % 1000 == 0:
                 print(i * 1.0 / y_permutations.shape[0])
             y = y_permutations[i, :]
-            omega = np.exp((2 * np.pi * np.complex(1j)) / L * 1.0)
+            omega = np.exp((2 * np.pi * np.complex(1j)) / self.L * 1.0)
             z = np.power(omega, y)
             q = np.sum(np.prod(np.power(z, h), 1))
             P[i] = np.real(np.conj(q) * q) / (
-                L ** (self.n ** 2) * (np.math.factorial(self.n) - 1)
+                self.L ** (self.n ** 2) * (np.math.factorial(self.n) - 1)
             )
         return P
 
