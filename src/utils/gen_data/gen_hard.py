@@ -1,6 +1,5 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import itertools
+import numpy as np
 
 
 class HardStateGenerator:
@@ -71,7 +70,6 @@ class HardStateGenerator:
             z = np.power(omega, y)
             q = np.sum(np.prod(np.power(z, h), 1))
             P[i] = np.real(np.conj(q) * q) / (
-                self.L ** (self.n ** 2) * (np.math.factorial(self.n) - 1)
+                    self.L ** (self.n ** 2) * (np.math.factorial(self.n) - 1)
             )
         return P
-
