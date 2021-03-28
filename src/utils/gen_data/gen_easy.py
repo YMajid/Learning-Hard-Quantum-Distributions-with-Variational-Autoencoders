@@ -12,7 +12,7 @@ class EasyStateGenerator:
         # constructing the coupling matrix J_ij
 
         # alpha is the exponent for the long-range decay
-        alpha = 0.9  # used to be 0.75
+        alpha = 0.75  # used to be 0.75
 
         J_indx = []
 
