@@ -57,21 +57,26 @@ class HardStateGenerator:
 
     # Full distribution: mode='full', Single sample: mode='sample'
     def get_hard_distribution(self, mode="full"):
-        if mode == "full":
-            y_permutations = self.get_permutations_with_repetition()  # All of y
+        #if mode == "full":
+        #    y_permutations = self.get_permutations_with_repetition()  # All of y
         #    if mode == 'sample':
         #        y_permutations = np.expand_dims(np.random.choice(L,self.n**2,replace=True),axis=1)
-        P = np.zeros(y_permutations.shape[0])
+        P = [] # np.zeros(y_permutations.shape[0])
         h = self.get_binary_permutation_matrices_flat()
-        for i in range(y_permutations.shape[0]):
+        x = np.linspace(0, self.L - 1, self.L).astype(int)
+        perms = itertools.product(x, repeat=self.n ** 2)
+
+        for i,p in enumerate(perms):
+
+        #for i in range(y_permutations.shape[0]):
             if i % 1000 == 0:
-                print(i * 1.0 / y_permutations.shape[0])
-            y = y_permutations[i, :]
+                print(i/(self.L**(self.n**2)))
+            y = p #y_permutations[i, :]
             omega = np.exp((2 * np.pi * np.complex(1j)) / self.L * 1.0)
             z = np.power(omega, y)
             q = np.sum(np.prod(np.power(z, h), 1))
-            P[i] = np.real(np.conj(q) * q) / (
+            P.append( np.real(np.conj(q) * q) / (
                 self.L ** (self.n ** 2) * (np.math.factorial(self.n) - 1)
-            )
-        return P
+            ))
+        return np.asarray(P)
 
