@@ -9,7 +9,7 @@ sys.path.append("src/utils/gen_data")
 import data_reader
 
 def create_dataset():
-    n_qubits = 3
+    n_qubits = 4
     data_reader.create_dataset(n_qubits)
 
 if __name__ == '__main__':

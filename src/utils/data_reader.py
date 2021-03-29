@@ -30,7 +30,7 @@ def data_reader(csv_path):
 
 def create_dataset(n_qubits):
     times = np.arange(0, 5.01, 1.0)
-    L=4 # mentioned in the paper
+    L=2 # qubits -> L-ary = Binary
 
     easy = EasyStateGenerator()
     easy_d = easy.get_time_evolve_state(L, times)
