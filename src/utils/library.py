@@ -18,5 +18,5 @@ class Library:
 
     def reader(self, file_name):
         input_location = self.path + file_name + '.npz'
-        data = np.load(input_location)
+        data = np.load(input_location, mmap_mode='r')
         return data
