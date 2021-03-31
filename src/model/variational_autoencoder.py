@@ -6,9 +6,9 @@ class VariationalAutoencoder(nn.Module):
     Variational Autoencoder class.
 
     Architecture:
-        -
-        -
-        -
+        - 6 Fully connected layers
+        - Sigmoid activation function
+        - LeakyReLU activation function with slope of -0.2
     """
 
     def __init__(self):
