@@ -1,12 +1,13 @@
 import torch
+import numpy as np
 from library import Library
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import SubsetRandomSampler, DataLoader, TensorDataset
 
 
 def get_data(batch_size=100, file_path='data/l4n4/'):
-    easy_loader, hard_loader, random_loader = __to_torch(batch_size, file_path)
+    train_loaders, test_loaders = __to_torch(batch_size, file_path)
 
-    return easy_loader, hard_loader, random_loader
+    return train_loaders, test_loaders
 
 
 def __get_raw_data(file_path):
@@ -17,6 +18,20 @@ def __get_raw_data(file_path):
     raw_random = library.reader('random_dataset')['rand_dset']
 
     return raw_easy, raw_hard, raw_random
+
+
+def __get_samplers(dataset, percent_test=0.3):
+    dataset_size = len(dataset)
+    indices = list(range(dataset_size))
+    split = int(np.floor(percent_test * dataset_size))
+
+    np.random.shuffle(indices)
+    train_indices, test_indices = indices[split:], indices[:split]
+
+    train_sampler = SubsetRandomSampler(train_indices)
+    test_sampler = SubsetRandomSampler(test_indices)
+
+    return train_sampler, test_sampler
 
 
 def __to_torch(batch_size, file_path):
@@ -30,8 +45,15 @@ def __to_torch(batch_size, file_path):
     hard_dataset = TensorDataset(hard_tensor)
     random_dataset = TensorDataset(random_tensor)
 
-    easy_loader = DataLoader(easy_dataset, batch_size=batch_size)
-    hard_loader = DataLoader(hard_dataset, batch_size=batch_size)
-    random_loader = DataLoader(random_dataset, batch_size=batch_size)
+    train_loaders, test_loaders = [], []
+    datasets = [easy_dataset, hard_dataset, random_dataset]
 
-    return easy_loader, hard_loader, random_loader
+    for dataset in datasets:
+        train_sampler, test_sampler = __get_samplers(dataset, 0.3)
+        train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler)
+        test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler)
+
+        train_loaders.append(train_loader)
+        test_loaders.append(test_loader)
+
+    return train_loaders, test_loaders
