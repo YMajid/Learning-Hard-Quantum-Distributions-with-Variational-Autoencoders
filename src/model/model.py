@@ -7,12 +7,13 @@ from variational_autoencoder import VariationalAutoencoder
 
 class Model:
     def __init__(self, parameters):
-        self.epochs = parameters['epochs']
-        self.batch_size = parameters['batch_size']
-        self.display_epochs = parameters['display_epochs']
+        self.epochs = int(parameters['epochs'])
+        self.batch_size = int(parameters['batch_size'])
+        self.display_epochs = int(parameters['display_epoch'])
         self.learning_rate = parameters['learning_rate']
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
+        self.run_model()
 
     def prepare_model(self):
         """
@@ -31,15 +32,15 @@ class Model:
             - Adam optimizer
         Raises:
         """
-        vae = VariationalAutoencoder().to(self.device)
+        vae = VariationalAutoencoder().double().to(self.device)
 
         train_loaders, test_loaders = get_data(self.batch_size, 'data/l4n4/')
 
-        optimizer = optim.Adam(self.vae.parameters(), lr=self.learning_rate)
+        optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
         return vae, train_loaders, test_loaders, optimizer
 
-    def loss_function(self, x, x_reconstruction, mu, log_var):
+    def loss_function(self, x, x_reconstruction, mu, log_var, weight=1):
         """
         - Returns the loss for the model based on the reconstruction likelihood and KL divergence
 
@@ -52,10 +53,10 @@ class Model:
             - Model loss
         Raises:
         """
-        reconstruction_likelihood = F.binary_cross_entropy(x_reconstruction, x.view(), reduction='sum')
+        reconstruction_likelihood = F.binary_cross_entropy(x_reconstruction, x.view(-1), reduction='sum')
         kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
-        loss = reconstruction_likelihood + kl_divergence
+        loss = reconstruction_likelihood + kl_divergence * weight
 
         return loss
 
@@ -71,8 +72,8 @@ class Model:
         """
         self.vae.train()
 
-        for i, (data, _) in enumerate(loader):
-            data = data.to(self.device)
+        for i, data in enumerate(loader):
+            data = data[0].to(self.device)
 
             self.optimizer.zero_grad()
             reconstruction_batch, mu, log_var = self.vae(data)
@@ -113,4 +114,4 @@ class Model:
 
         for e in range(0, self.epochs):
             self.train(e, train_loader)
-            self.test(e, test_loader)
+            # self.test(e, test_loader)

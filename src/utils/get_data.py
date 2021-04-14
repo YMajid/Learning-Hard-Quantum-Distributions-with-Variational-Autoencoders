@@ -34,6 +34,9 @@ def __get_raw_data(file_path):
     raw_easy = library.reader('easy_dataset')['easy_dset']
     raw_hard = library.reader('hard_dataset')['hard_dset']
     raw_random = library.reader('random_dataset')['rand_dset']
+    print(raw_easy.dtype)
+    print(raw_hard.dtype)
+    print(raw_random.dtype)
 
     return raw_easy, raw_hard, raw_random
 

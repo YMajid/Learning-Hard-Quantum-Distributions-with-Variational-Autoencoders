@@ -1,11 +1,13 @@
 import numpy as np
 from library import Library
+import sys
+sys.path.insert(-1, "gen_data")
 from gen_easy import EasyStateGenerator
 from gen_random import RandomStateGenerator
 from gen_hard import HardStateGenerator
 
 
-def create_dataset(n_qubits=3, L=4, t_i=0.0, t_f=5.01):
+def create_dataset(n_qubits=3, L=2, t_i=0.0, t_f=5.01):
     """
     - Generates easy, hard and random datasets and saves them as .npz files
 
