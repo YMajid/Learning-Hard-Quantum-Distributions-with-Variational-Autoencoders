@@ -34,7 +34,7 @@ class Model:
         """
         vae = VariationalAutoencoder().double().to(self.device)
 
-        train_loaders, test_loaders = get_data(self.batch_size, 'data/l4n4/')
+        train_loaders, test_loaders = get_data(self.batch_size, 'data/l2n4/')
 
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
