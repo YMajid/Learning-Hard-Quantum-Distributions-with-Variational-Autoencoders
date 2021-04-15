@@ -1,6 +1,7 @@
 {
-  "device": "cpu",
-  "learning_rate": 1e-3,
+  "epochs": 100,
   "num_batches": 5e4,
-  "batch_size": 1e3
+  "batch_size": 1e3,
+  "display_epoch": 10,
+  "learning_rate": 1e-3
 }
