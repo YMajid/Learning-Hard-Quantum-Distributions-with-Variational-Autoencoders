@@ -5,6 +5,7 @@ from get_data import get_data
 from variational_autoencoder import VariationalAutoencoder
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 class Model:
@@ -13,7 +14,8 @@ class Model:
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])
         self.learning_rate = parameters['learning_rate']
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device(
+            'cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
         train_losses, test_losses = self.run_model()
         self.plot_losses(train_losses, test_losses)
@@ -37,7 +39,8 @@ class Model:
         """
         vae = VariationalAutoencoder(2**3).double().to(self.device)
 
-        train_loaders, test_loaders = get_data(self.batch_size, 'data/l2n4_bin/')
+        train_loaders, test_loaders = get_data(
+            self.batch_size, 'data/l2n4_bin/')
 
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
@@ -56,8 +59,10 @@ class Model:
             - Model loss
         Raises:
         """
-        reconstruction_likelihood = F.binary_cross_entropy(x_reconstruction, x, reduction='sum')
-        kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+        reconstruction_likelihood = F.binary_cross_entropy(
+            x_reconstruction, x, reduction='sum')
+        kl_divergence = -0.5 * \
+            torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
         loss = reconstruction_likelihood + kl_divergence * weight
 
@@ -89,8 +94,8 @@ class Model:
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
 
-        if epoch + 1 % self.display_epochs == 0:
-            print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) + \
+        if (epoch + 1) % self.display_epochs == 0:
+            print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss))
         return epoch_loss
 
@@ -135,11 +140,15 @@ class Model:
 
         epochs = np.arange(0, len(train_losses), 1)
         plt.plot(epochs, train_losses, "g-", label="Training Loss")
-        plt.plot(epochs, test_losses, "b-", label="Testing Loss")
+        # plt.plot(epochs, test_losses, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
         plt.legend()
         plt.xlim(0, len(train_losses))
-        plt.savefig("results/loss.png")
+        figure_num = 1
+        while os.path.exists(f'results/loss-{figure_num}.png'):
+            figure_num += 1
+        plt.savefig(f'results/loss-{figure_num}.png')
+        print(f'results/loss-{figure_num}.png')
 
         return
