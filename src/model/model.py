@@ -105,10 +105,18 @@ class Model:
         Raises:
         """
         self.vae.eval()
+        epoch_loss = 0
 
         with torch.no_grad():
             for i, (data, _) in enumerate(loader):
-                pass
+                reconstruction_batch, mu, logvar = self.vae(data)
+                loss = self.loss_function(data, reconstruction_batch, mu, logvar)
+                epoch_loss += loss.item() / data.size(0)
+
+        return epoch_loss
+
+
+
 
     def run_model(self, state='hard'):
         """
@@ -125,7 +133,7 @@ class Model:
 
         for e in range(0, self.epochs):
             train_losses.append(self.train(e, train_loader))
-            # test_losses.append(self.test(e, test_loader))
+            test_losses.append(self.test(e, test_loader))
 
         torch.save(self.vae.state_dict(), "results/saved_model")
 
