@@ -150,7 +150,7 @@ class Model:
 
         epochs = np.arange(0, len(train_losses), 1)
         plt.plot(epochs, train_losses, "g-", label="Training Loss")
-        # plt.plot(epochs, test_losses, "b-", label="Testing Loss")
+        plt.plot(epochs, test_losses, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
         plt.legend()
