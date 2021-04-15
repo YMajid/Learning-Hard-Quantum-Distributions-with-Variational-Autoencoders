@@ -82,6 +82,3 @@ class VariationalAutoencoder(nn.Module):
         x = self.reparameterize(mu, logvar)
         reconstruction = self.decoder(x)
         return reconstruction, mu, logvar
-
-    def division_factors(self):
-        pass

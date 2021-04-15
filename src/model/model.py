@@ -75,6 +75,9 @@ class Model:
         for i, data in enumerate(loader):
             data = data[0].to(self.device)
 
+            if data.size(0) != 1000:
+                break
+
             self.optimizer.zero_grad()
             reconstruction_batch, mu, log_var = self.vae(data)
             loss = self.loss_function(data, reconstruction_batch, mu, log_var)
