@@ -21,58 +21,17 @@ class VariationalAutoencoder(nn.Module):
         - LeakyReLU activation function with slope of -0.2
     """
 
-    def __init__(self, input_size):
+    def __init__(self, encode, decode, logvar, mu):
         super(VariationalAutoencoder, self).__init__()
         self.LReLU = nn.LeakyReLU(0.2)
         self.sigmoid = nn.Sigmoid()
-        self.compr = input_size // 2
 
-        self.reduction = self.compr // 4
+        self.fc_logvar = logvar
+        self.fc_mu = mu
 
-        self.fc_logvar = nn.Linear(input_size - self.reduction * 3, self.compr)
-        self.fc_mu = nn.Linear(input_size - self.reduction * 3, self.compr)
+        self.encode = encode
 
-        self.encode = nn.Sequential(
-            nn.Linear(input_size, input_size - self.reduction),
-            nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction,
-                      input_size - self.reduction * 2),
-            nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 2,
-                      input_size - self.reduction * 3),
-            # nn.LeakyReLU(0.20),
-            # nn.Linear(input_size - self.reduction * 3,
-            #           input_size - self.reduction * 4),
-            # nn.LeakyReLU(0.20),
-            # nn.Linear(input_size - self.reduction * 4,
-            #           input_size - self.reduction * 5),
-            # nn.LeakyReLU(0.20),
-            # nn.Linear(input_size - self.reduction * 5,
-            #           input_size - self.reduction * 6),
-            nn.Sigmoid()
-        )
-
-        self.decode = nn.Sequential(
-            nn.Linear(self.compr, input_size - self.reduction * 3),
-            nn.LeakyReLU(0.20),
-            # nn.Linear(input_size - self.reduction * 6,
-            #           input_size - self.reduction * 5),
-            # nn.LeakyReLU(0.20),
-            # nn.Linear(input_size - self.reduction * 5,
-            #           input_size - self.reduction * 4),
-            # nn.LeakyReLU(0.20),
-            # nn.Linear(input_size - self.reduction * 4,
-            #           input_size - self.reduction * 3),
-            # nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 3,
-                      input_size - self.reduction * 2),
-            nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 2,
-                      input_size - self.reduction * 1),
-            nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 1, input_size),
-            nn.Sigmoid()
-        )
+        self.decode = decode
 
     def encoder(self, x):
         x = self.encode(x)

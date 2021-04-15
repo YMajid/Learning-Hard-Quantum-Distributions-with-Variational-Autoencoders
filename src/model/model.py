@@ -6,7 +6,7 @@ from variational_autoencoder import VariationalAutoencoder
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
+from hidden_layers import get_layers
 
 class Model:
     def __init__(self, parameters):
@@ -37,7 +37,10 @@ class Model:
             - Adam optimizer
         Raises:
         """
-        vae = VariationalAutoencoder(2**3).double().to(self.device)
+        input_size = 2**3
+        n_layers = 2
+        VAE_layers = get_layers(input_size, n_layers)
+        vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get('decoder') , VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
 
         train_loaders, test_loaders = get_data(
             self.batch_size, 'data/l2n4_bin/')
@@ -113,15 +116,14 @@ class Model:
         epoch_loss = 0
 
         with torch.no_grad():
-            for i, (data, _) in enumerate(loader):
+            for i, data in enumerate(loader):
+                data = data[0].to(self.device)
                 reconstruction_batch, mu, logvar = self.vae(data)
-                loss = self.loss_function(data, reconstruction_batch, mu, logvar)
+                loss = self.loss_function(
+                    data, reconstruction_batch, mu, logvar)
                 epoch_loss += loss.item() / data.size(0)
 
         return epoch_loss
-
-
-
 
     def run_model(self, state='hard'):
         """
