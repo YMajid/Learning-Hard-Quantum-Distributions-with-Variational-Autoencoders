@@ -3,6 +3,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 from get_data import get_data
 from variational_autoencoder import VariationalAutoencoder
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Model:
@@ -13,7 +15,8 @@ class Model:
         self.learning_rate = parameters['learning_rate']
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
-        self.run_model()
+        train_losses, test_losses = self.run_model()
+        self.plot_losses(train_losses, test_losses)
 
     def prepare_model(self):
         """
@@ -71,6 +74,7 @@ class Model:
         Raises:
         """
         self.vae.train()
+        epoch_loss = 0
 
         for i, data in enumerate(loader):
             data = data[0].to(self.device)
@@ -82,11 +86,13 @@ class Model:
             reconstruction_batch, mu, log_var = self.vae(data)
             loss = self.loss_function(data, reconstruction_batch, mu, log_var)
             loss.backward()
+            epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
 
-            if epoch + 1 % self.display_epochs == 0:
-                print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) + \
-                      '\tLoss: {:.4f}'.format(loss.item()))
+        if epoch + 1 % self.display_epochs == 0:
+            print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) + \
+                  '\tLoss: {:.4f}'.format(epoch_loss))
+        return epoch_loss
 
     def test(self, epoch, loader):
         """
@@ -114,7 +120,26 @@ class Model:
         """
         index = 0 if state == 'easy' else 1 if state == 'hard' else 2
         train_loader, test_loader = self.train_loaders[index], self.test_loaders[index]
+        train_losses = []
+        test_losses = []
 
         for e in range(0, self.epochs):
-            self.train(e, train_loader)
-            # self.test(e, test_loader)
+            train_losses.append(self.train(e, train_loader))
+            # test_losses.append(self.test(e, test_loader))
+
+        torch.save(self.vae.state_dict(), "results/saved_model")
+
+        return train_losses, test_losses
+
+    def plot_losses(self, train_losses, test_losses):
+
+        epochs = np.arange(0, len(train_losses), 1)
+        plt.plot(epochs, train_losses, "g-", label="Training Loss")
+        plt.plot(epochs, test_losses, "b-", label="Testing Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.legend()
+        plt.xlim(0, len(train_losses))
+        plt.savefig("results/loss.png")
+
+        return
