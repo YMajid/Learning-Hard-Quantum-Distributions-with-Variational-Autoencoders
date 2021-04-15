@@ -6,6 +6,26 @@ from gen_easy import EasyStateGenerator
 from gen_random import RandomStateGenerator
 from gen_hard import HardStateGenerator
 
+def binarize(dset):
+    """
+    - Transforms a probability distribution into binary strings that represent
+    basis elements
+
+    Args:
+        dset:
+
+    Returns:
+
+    """
+    u = np.unique(dset)
+    out = np.zeros((dset.shape[0], u.shape[0]))
+
+    for i in range(len(dset)):
+        # sets each row to an array of zeros with a 1 corresponding to which unique element it is
+        out[i] = (u==dset[i]).astype(float)
+
+    return out
+
 
 def create_dataset(n_qubits=3, L=2, t_i=0.0, t_f=5.01):
     """
