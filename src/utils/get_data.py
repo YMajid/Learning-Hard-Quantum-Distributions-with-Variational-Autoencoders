@@ -73,6 +73,7 @@ def __to_torch(batch_size, file_path):
     """
     raw_easy, raw_hard, raw_random = __get_raw_data(file_path)
 
+    # raw_hard = np.array([[int(j)for j in i]for i in raw_hard])
     easy_tensor = torch.from_numpy(raw_easy)
     hard_tensor = torch.from_numpy(raw_hard)
     random_tensor = torch.from_numpy(raw_random)
@@ -86,8 +87,10 @@ def __to_torch(batch_size, file_path):
 
     for dataset in datasets:
         train_sampler, test_sampler = __get_samplers(dataset, 0.3)
-        train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler)
-        test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler)
+        train_loader = DataLoader(
+            dataset, batch_size=batch_size, sampler=train_sampler)
+        test_loader = DataLoader(
+            dataset, batch_size=batch_size, sampler=test_sampler)
 
         train_loaders.append(train_loader)
         test_loaders.append(test_loader)

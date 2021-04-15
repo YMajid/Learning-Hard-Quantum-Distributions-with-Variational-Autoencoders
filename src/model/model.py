@@ -32,9 +32,9 @@ class Model:
             - Adam optimizer
         Raises:
         """
-        vae = VariationalAutoencoder().double().to(self.device)
+        vae = VariationalAutoencoder(2**3).double().to(self.device)
 
-        train_loaders, test_loaders = get_data(self.batch_size, 'data/l2n4/')
+        train_loaders, test_loaders = get_data(self.batch_size, 'data/l2n4_bin/')
 
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
@@ -53,7 +53,7 @@ class Model:
             - Model loss
         Raises:
         """
-        reconstruction_likelihood = F.binary_cross_entropy(x_reconstruction, x.view(-1), reduction='sum')
+        reconstruction_likelihood = F.binary_cross_entropy(x_reconstruction, x, reduction='sum')
         kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
         loss = reconstruction_likelihood + kl_divergence * weight
