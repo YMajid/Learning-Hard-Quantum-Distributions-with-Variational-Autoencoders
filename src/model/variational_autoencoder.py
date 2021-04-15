@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 class Print(nn.Module):
@@ -25,41 +26,51 @@ class VariationalAutoencoder(nn.Module):
         super(VariationalAutoencoder, self).__init__()
         self.LReLU = nn.LeakyReLU(0.2)
         self.sigmoid = nn.Sigmoid()
-        self.compr = 0.5 * input_size
-
-        self.fc_logvar = nn.Linear(input_size - self.reduction * 7, self.compr)
-        self.fc_mu = nn.Linear(input_size - self.reduction * 7, self.compr)
+        self.compr = input_size // 2
 
         self.reduction = self.compr // 7
+
+        self.fc_logvar = nn.Linear(input_size - self.reduction * 6, self.compr)
+        self.fc_mu = nn.Linear(input_size - self.reduction * 6, self.compr)
 
         self.encode = nn.Sequential(
             nn.Linear(input_size, input_size - self.reduction),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 2, input_size - self.reduction * 3),
+            nn.Linear(input_size - self.reduction,
+                      input_size - self.reduction * 2),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 3, input_size - self.reduction * 4),
+            nn.Linear(input_size - self.reduction * 2,
+                      input_size - self.reduction * 3),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 4, input_size - self.reduction * 5),
+            nn.Linear(input_size - self.reduction * 3,
+                      input_size - self.reduction * 4),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 5, input_size - self.reduction * 6),
+            nn.Linear(input_size - self.reduction * 4,
+                      input_size - self.reduction * 5),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 6, input_size - self.reduction * 7),
+            nn.Linear(input_size - self.reduction * 5,
+                      input_size - self.reduction * 6),
             nn.Sigmoid()
         )
         self.decode = nn.Sequential(
-            nn.Linear(self.compr, input_size - self.reduction * 7),
+            nn.Linear(self.compr, input_size - self.reduction * 6),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 7, input_size - self.reduction * 6),
+            nn.Linear(input_size - self.reduction * 6,
+                      input_size - self.reduction * 5),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 6, input_size - self.reduction * 5),
+            nn.Linear(input_size - self.reduction * 5,
+                      input_size - self.reduction * 4),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 5, input_size - self.reduction * 4),
+            nn.Linear(input_size - self.reduction * 4,
+                      input_size - self.reduction * 3),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 4, input_size - self.reduction * 3),
+            nn.Linear(input_size - self.reduction * 3,
+                      input_size - self.reduction * 2),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 3, input_size - self.reduction * 2),
+            nn.Linear(input_size - self.reduction * 2,
+                      input_size - self.reduction * 1),
             nn.LeakyReLU(0.20),
-            nn.Linear(input_size - self.reduction * 2, input_size - self.reduction * 1),
+            nn.Linear(input_size - self.reduction * 1, input_size),
             nn.Sigmoid()
         )
 
@@ -83,5 +94,3 @@ class VariationalAutoencoder(nn.Module):
         reconstruction = self.decoder(x)
         return reconstruction, mu, logvar
 
-    def division_factors(self):
-        pass
