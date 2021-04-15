@@ -4,7 +4,7 @@ from library import Library
 from torch.utils.data import SubsetRandomSampler, DataLoader, TensorDataset
 
 
-def get_data(batch_size=100, file_path='data/l2n4/'):
+def get_data(batch_size=100, file_path='data/l2n4_bin/'):
     """
     Args:
         - batch_size: Size of batches

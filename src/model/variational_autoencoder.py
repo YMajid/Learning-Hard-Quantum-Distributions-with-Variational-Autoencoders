@@ -51,6 +51,7 @@ class VariationalAutoencoder(nn.Module):
                       input_size - self.reduction * 6),
             nn.Sigmoid()
         )
+
         self.decode = nn.Sequential(
             nn.Linear(self.compr, input_size - self.reduction * 6),
             nn.LeakyReLU(0.20),
