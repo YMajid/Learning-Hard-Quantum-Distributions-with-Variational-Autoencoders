@@ -27,7 +27,7 @@ def binarize(dset):
     return out
 
 
-def create_dataset(n_qubits=3, L=2, t_i=0.0, t_f=5.01):
+def create_dataset(n_qubits=18, L=2, t_i=0.0, t_f=5.01):
     """
     - Generates easy, hard and random datasets and saves them as .npz files
 
@@ -39,6 +39,7 @@ def create_dataset(n_qubits=3, L=2, t_i=0.0, t_f=5.01):
     Returns:
     Raises:
     """
+
     library = Library('data/l{}n{}/'.format(L, n_qubits))
     times = np.arange(t_i, t_f, 1.0)
 
@@ -54,7 +55,9 @@ def create_dataset(n_qubits=3, L=2, t_i=0.0, t_f=5.01):
     del rand_d, rand
     print("Finished generating random dataset.")
 
-    hard = HardStateGenerator(n_qubits, L)
+    # the n input here is not qubits!!
+    # n-qubits = log_2 ( L^n^2 )
+    hard = HardStateGenerator(3, 4) # correct inputs for 18 qubit state
     hard_d = hard.get_hard_distribution(mode="full")
     library.writer(hard_d, 'hard_dataset')
     del hard_d, hard
