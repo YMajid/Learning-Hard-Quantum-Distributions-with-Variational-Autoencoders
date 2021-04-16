@@ -151,12 +151,16 @@ class Model:
         """
         index = 0 if state == 'easy' else 1 if state == 'hard' else 2
         train_loader, test_loader = self.train_loaders[index], self.test_loaders[index]
-        train_losses = []
-        test_losses = []
+        train_losses, test_losses = [], []
+        train_fidelities, test_fidelities = [], []
 
         for e in range(0, self.epochs):
-            train_losses.append(self.train(e, train_loader))
-            test_losses.append(self.test(e, test_loader))
+            train_loss, train_fidelity = self.train(e, train_loader)
+            test_loss, test_fidelity = self.test(e, train_loader)
+            train_losses.append(train_loss)
+            train_fidelities.append(train_fidelity)
+            test_losses.append(test_loss)
+            test_fidelities.append(test_fidelity)
 
         torch.save(self.vae.state_dict(), "results/saved_model")
 
