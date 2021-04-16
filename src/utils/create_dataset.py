@@ -50,7 +50,7 @@ def create_dataset(n_qubits=18, L=2, t_i=0.0, t_f=5.01):
     print("Finished generating easy dataset.")
 
     rand = RandomStateGenerator()
-    rand_d = rand.gen_unitary(n_qubits)
+    rand_d = rand.make_dset(n_qubits)
     library.writer(rand_d, 'random_dataset')
     del rand_d, rand
     print("Finished generating random dataset.")
