@@ -149,6 +149,8 @@ class Model:
     def plot_losses(self, train_losses, test_losses, state='hard'):
         """
         Args:
+            - train_losses: list of training losses from run_model
+            - test_losses: list of testing losses from run_model
             - state: Quantum state the model was trained on
                 - Options include: 'easy', 'hard', 'random'
         Returns:
@@ -159,7 +161,7 @@ class Model:
         plt.plot(epochs, test_losses, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("VAE Training Loss for the "+str(state)+" state")
+        plt.title("VAE Training Loss for the " + str(state) + " state")
         plt.legend()
         plt.xlim(0, len(train_losses))
         figure_num = 1
