@@ -91,7 +91,7 @@ def get_layers(input_size, n_layers):
                 nn.Sigmoid()
                 )
 
-        decoder = None
+    decoder = None
 
     if n_layers == 7:
         decoder = nn.Sequential(
