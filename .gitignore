@@ -1,6 +1,9 @@
 # Vim Swap
 *.swp
 
+# bigass datasets
+*.npz
+
 # PyCharm
 .idea/
 

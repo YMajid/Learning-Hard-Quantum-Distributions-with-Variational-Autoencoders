@@ -2,6 +2,7 @@
 import sys
 import json
 import argparse
+import os
 
 sys.path.append('src/model')
 sys.path.append('src/utils')
@@ -19,7 +20,9 @@ if __name__ == '__main__':
         parameters = json.loads(f.read())
         f.close()
 
-    # create_dataset()
+    # create dataset if not available locally (only takes a minute or three)
+    if not os.path.exists('data/easy_dataset.npz'):
+        create_dataset()
 
     # train_loaders, test_loaders = get_data()
     Model(parameters)
