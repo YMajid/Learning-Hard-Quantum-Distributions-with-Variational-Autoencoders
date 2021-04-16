@@ -1,3 +1,6 @@
+# Vim Swap
+*.swp
+
 # PyCharm
 .idea/
 

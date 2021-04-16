@@ -71,6 +71,20 @@ class Model:
 
         return loss
 
+    def fidelity(self, x, x_reconstruction):
+        """
+        - Calculates the reconstruction fidelity.
+        """
+        x = torch.sqrt(x)
+        product = torch.mathmul(x, x_reconstruction)
+        product = torch.matmul(product, x)
+        product = torch.sqrt(product)
+        fedility = torch.trace(product)
+
+        return fidelity
+
+
+
     def train(self, epoch, loader):
         """
         - Trains the VAE model
@@ -83,24 +97,24 @@ class Model:
         """
         self.vae.train()
         epoch_loss = 0
+        fidelity = None
 
         for i, data in enumerate(loader):
             data = data[0].to(self.device)
 
-            if data.size(0) != 1000:
-                break
-
             self.optimizer.zero_grad()
-            reconstruction_batch, mu, log_var = self.vae(data)
-            loss = self.loss_function(data, reconstruction_batch, mu, log_var)
+            reconstruction_data, mu, log_var = self.vae(data)
+            loss = self.loss_function(data, reconstruction_data, mu, log_var)
             loss.backward()
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
+            fidelity = self.fidelity(data, reconstruction_data)
 
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss))
-        return epoch_loss
+
+        return epoch_loss, fidelity 
 
     def test(self, epoch, loader):
         """
@@ -114,16 +128,18 @@ class Model:
         """
         self.vae.eval()
         epoch_loss = 0
+        fidelity = None
 
         with torch.no_grad():
             for i, data in enumerate(loader):
                 data = data[0].to(self.device)
-                reconstruction_batch, mu, logvar = self.vae(data)
+                reconstruction_data, mu, logvar = self.vae(data)
                 loss = self.loss_function(
-                    data, reconstruction_batch, mu, logvar)
+                    data, reconstruction_data, mu, logvar)
                 epoch_loss += loss.item() / data.size(0)
+                fidelity = self.fidelity(data, reconstruction_data)
 
-        return epoch_loss
+        return epoch_loss, fidelity
 
     def run_model(self, state='hard'):
         """
@@ -135,12 +151,16 @@ class Model:
         """
         index = 0 if state == 'easy' else 1 if state == 'hard' else 2
         train_loader, test_loader = self.train_loaders[index], self.test_loaders[index]
-        train_losses = []
-        test_losses = []
+        train_losses, test_losses = [], []
+        train_fidelities, test_fidelities = [], []
 
         for e in range(0, self.epochs):
-            train_losses.append(self.train(e, train_loader))
-            test_losses.append(self.test(e, test_loader))
+            train_loss, train_fidelity = self.train(e, train_loader)
+            test_loss, test_fidelity = self.test(e, train_loader)
+            train_losses.append(train_loss)
+            train_fidelities.append(train_fidelity)
+            test_losses.append(test_loss)
+            test_fidelities.append(test_fidelity)
 
         torch.save(self.vae.state_dict(), "results/saved_model")
 
