@@ -91,7 +91,7 @@ def get_layers(input_size, n_layers):
                 nn.Sigmoid()
                 )
 
-        decoder = None
+    decoder = None
 
     if n_layers == 7:
         decoder = nn.Sequential(
@@ -192,7 +192,7 @@ def get_layers(input_size, n_layers):
                 nn.Sigmoid()
                 )
 
-        fc_logvar = nn.Linear(input_size - reduction * (n_layers - 1), compression)
+    fc_logvar = nn.Linear(input_size - reduction * (n_layers - 1), compression)
     fc_mu = nn.Linear(input_size - reduction * (n_layers - 1), compression)
 
     return {'decoder': decoder, 'encoder': encoder, 'logvar': fc_logvar, 'mu': fc_mu}
