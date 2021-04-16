@@ -42,8 +42,7 @@ class Model:
         VAE_layers = get_layers(input_size, n_layers)
         vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get('decoder') , VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
 
-        train_loaders, test_loaders = get_data(
-            self.batch_size, 'data/l2n4_bin/')
+        train_loaders, test_loaders = get_data(self.batch_size, 'data/')
 
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
@@ -79,7 +78,7 @@ class Model:
         product = torch.mathmul(x, x_reconstruction)
         product = torch.matmul(product, x)
         product = torch.sqrt(product)
-        fedility = torch.trace(product)
+        fidelity = torch.trace(product)
 
         return fidelity
 

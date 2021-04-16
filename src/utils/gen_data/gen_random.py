@@ -15,7 +15,7 @@ class RandomStateGenerator:
     # which gives us a random 1-qubit state
     # we then tensor product n of these together
     # this gives a 2^n dim vector representable by 2n pieces of info
-    def make_dset(self, n_qubits):
+    def make_dset_easy(self, n_qubits):
         u = self.gen_unitary(1)
         prod = (u * np.array([1, 0]).T).sum(1)
 
@@ -28,4 +28,21 @@ class RandomStateGenerator:
         prod = prod * np.conj(prod).T
 
         return prod
+
+    def make_dset_hard(self, n_qubits):
+        # sample from 2^n dim complex unit sphere
+        # via sampling 2^2n real unit sphere and then just making it complex
+        n = n_qubits+1 # or any positive integer
+        x = np.random.normal(size=(1, 2**n))
+        x /= np.linalg.norm(x, axis=1)[:, np.newaxis]
+        x = x.reshape(2**n_qubits, 2)
+        y = np.empty(x.shape[0], dtype=complex)
+        y.real=x[:,0]
+        y.imag=x[:,1]
+        del x
+
+        y /= np.linalg.norm(y) # normalize
+        out = (y * np.conj(y).T).real # still a complex dtype so take .real
+
+        return out
 
