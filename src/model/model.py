@@ -17,8 +17,9 @@ class Model:
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
-        train_losses, test_losses = self.run_model(state=state)
+        train_losses, test_losses, train_fielities, test_fidelities = self.run_model(state=state)
         self.plot_losses(train_losses, test_losses)
+        self.plot_fidelities(train_fielities, test_fidelities)
 
     def prepare_model(self):
         """
@@ -96,7 +97,7 @@ class Model:
         """
         self.vae.train()
         epoch_loss = 0
-        fidelity = None
+        fidelity = 0
 
         for i, data in enumerate(loader):
             data = data[0].to(self.device)
@@ -107,11 +108,13 @@ class Model:
             loss.backward()
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
-            fidelity = self.fidelity(data, reconstruction_data)
+            fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
 
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
-                  '\tLoss: {:.4f}'.format(epoch_loss))
+                  '\tLoss: {:.4f}'.format(epoch_loss) +
+                  '\tFidelity: {:.4f}'.format(fidelity)
+                  )
 
         return epoch_loss, fidelity 
 
@@ -127,7 +130,7 @@ class Model:
         """
         self.vae.eval()
         epoch_loss = 0
-        fidelity = None
+        fidelity = 0
 
         with torch.no_grad():
             for i, data in enumerate(loader):
@@ -136,7 +139,7 @@ class Model:
                 loss = self.loss_function(
                     data, reconstruction_data, mu, logvar)
                 epoch_loss += loss.item() / data.size(0)
-                fidelity = self.fidelity(data, reconstruction_data)
+                fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
 
         return epoch_loss, fidelity
 
@@ -161,9 +164,9 @@ class Model:
             test_losses.append(test_loss)
             test_fidelities.append(test_fidelity)
 
-        torch.save(self.vae.state_dict(), "results/saved_model")
+        torch.save(self.vae.state_dict(), "results/saved_model_{}".format(state))
 
-        return train_losses, test_losses
+        return train_losses, test_losses, train_fidelities, test_fidelities
 
     def plot_losses(self, train_losses, test_losses, state='hard'):
         """
@@ -189,4 +192,26 @@ class Model:
         plt.savefig(f'results/loss-{figure_num}.png')
         print(f'results/loss-{figure_num}.png')
 
-        return
+    def plot_fidelities(self, train_fidelities, test_fidelities, state='hard'):
+        """
+        Args:
+            - train_losses: list of training losses from run_model
+            - test_losses: list of testing losses from run_model
+            - state: Quantum state the model was trained on
+                - Options include: 'easy', 'hard', 'random'
+        Returns:
+        Raises:
+        """
+        epochs = np.arange(0, len(train_fidelities), 1)
+        plt.plot(epochs, train_fidelities, "g-", label="Training Loss")
+        plt.plot(epochs, test_fidelities, "b-", label="Testing Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("VAE Training Loss for the " + str(state) + " state")
+        plt.legend()
+        plt.xlim(0, len(test_fidelities))
+        figure_num = 1
+        while os.path.exists(f'results/fidelities-{figure_num}.png'):
+            figure_num += 1
+        plt.savefig(f'results/fidelities-{figure_num}.png')
+        print(f'results/fidelities-{figure_num}.png')
