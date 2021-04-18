@@ -9,15 +9,17 @@ import os
 from hidden_layers import get_layers
 
 class Model:
-    def __init__(self, parameters, state='hard'):
+    def __init__(self, parameters, state='hard', n_layers=2):
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])
         self.learning_rate = parameters['learning_rate']
+        self.state = state
+        self.n_layers = n_layers
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
-        train_losses, test_losses, train_fielities, test_fidelities = self.run_model(state=state)
+        train_losses, test_losses, train_fielities, test_fidelities = self.run_model()
         self.plot_losses(train_losses, test_losses)
         self.plot_fidelities(train_fielities, test_fidelities)
 
@@ -38,9 +40,9 @@ class Model:
             - Adam optimizer
         Raises:
         """
-        input_size = 2**3
-        n_layers = 2
-        VAE_layers = get_layers(input_size, n_layers)
+        input_size = 18 if not self.state == 'random' else 15  # should be same as n_qubits I think?
+        # n_layers = 2
+        VAE_layers = get_layers(input_size, self.n_layers)
         vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get('decoder') , VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
 
         train_loaders, test_loaders = get_data(self.batch_size, 'data/')
@@ -143,7 +145,7 @@ class Model:
 
         return epoch_loss, fidelity
 
-    def run_model(self, state='hard'):
+    def run_model(self):
         """
         Args:
             - state: Quantum state the model will be trained on
@@ -151,7 +153,7 @@ class Model:
         Returns:
         Raises:
         """
-        index = 0 if state == 'easy' else 1 if state == 'hard' else 2
+        index = 0 if self.state == 'easy' else 1 if self.state == 'hard' else 2
         train_loader, test_loader = self.train_loaders[index], self.test_loaders[index]
         train_losses, test_losses = [], []
         train_fidelities, test_fidelities = [], []
@@ -164,11 +166,11 @@ class Model:
             test_losses.append(test_loss)
             test_fidelities.append(test_fidelity)
 
-        torch.save(self.vae.state_dict(), "results/saved_model_{}".format(state))
+        torch.save(self.vae.state_dict(), "results/saved_model_{}".format(self.state))
 
         return train_losses, test_losses, train_fidelities, test_fidelities
 
-    def plot_losses(self, train_losses, test_losses, state='hard'):
+    def plot_losses(self, train_losses, test_losses):
         """
         Args:
             - train_losses: list of training losses from run_model
@@ -183,7 +185,7 @@ class Model:
         plt.plot(epochs, test_losses, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("VAE Training Loss for the " + str(state) + " state")
+        plt.title("VAE Training Loss for the " + str(self.state) + " state")
         plt.legend()
         plt.xlim(0, len(train_losses))
         figure_num = 1
@@ -192,7 +194,7 @@ class Model:
         plt.savefig(f'results/loss-{figure_num}.png')
         print(f'results/loss-{figure_num}.png')
 
-    def plot_fidelities(self, train_fidelities, test_fidelities, state='hard'):
+    def plot_fidelities(self, train_fidelities, test_fidelities):
         """
         Args:
             - train_losses: list of training losses from run_model
@@ -207,7 +209,7 @@ class Model:
         plt.plot(epochs, test_fidelities, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("VAE Training Loss for the " + str(state) + " state")
+        plt.title("VAE Training Loss for the " + str(self.state) + " state")
         plt.legend()
         plt.xlim(0, len(test_fidelities))
         figure_num = 1

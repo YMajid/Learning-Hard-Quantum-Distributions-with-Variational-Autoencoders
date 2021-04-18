@@ -22,6 +22,7 @@ if __name__ == '__main__':
 
     # create dataset if not available locally (only takes a minute or three)
     if not os.path.exists('data/easy_dataset.npz'):
+        print("Creating dataset, please wait one moment")
         create_dataset()
 
     # train_loaders, test_loaders = get_data()
