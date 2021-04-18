@@ -25,4 +25,4 @@ if __name__ == '__main__':
         create_dataset()
 
     # train_loaders, test_loaders = get_data()
-    Model(parameters)
+    Model(parameters, state='easy')

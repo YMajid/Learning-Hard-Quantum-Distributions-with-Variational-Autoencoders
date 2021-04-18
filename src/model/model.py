@@ -9,7 +9,7 @@ import os
 from hidden_layers import get_layers
 
 class Model:
-    def __init__(self, parameters):
+    def __init__(self, parameters, state='hard'):
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])
@@ -17,7 +17,7 @@ class Model:
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
-        train_losses, test_losses = self.run_model()
+        train_losses, test_losses = self.run_model(state=state)
         self.plot_losses(train_losses, test_losses)
 
     def prepare_model(self):
