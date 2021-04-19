@@ -100,12 +100,10 @@ class Model:
         epoch_loss = 0
         fidelity = 0
 
-        print(0)
         # del loader
         # loader = torch.utils.data.DataLoader(np.load("data/easy_dataset.npz")['easy_dset'].astype(float), batch_size=1000, shuffle=True )
 
         for i, data in enumerate(loader):
-            print(1)
             data = data[0].to(self.device)
             self.optimizer.zero_grad()
             reconstruction_data, mu, log_var = self.vae(data)
@@ -114,7 +112,9 @@ class Model:
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
             #fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
-            print("Done batch: " + str(i))
+
+            if i % 1000 == 0:
+                print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
 
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
@@ -145,7 +145,7 @@ class Model:
                 loss = self.loss_function(
                     data, reconstruction_data, mu, logvar)
                 epoch_loss += loss.item() / data.size(0)
-                fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+                # fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
 
         return epoch_loss, fidelity
 

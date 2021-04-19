@@ -20,7 +20,7 @@ if __name__ == '__main__':
         parameters = json.loads(f.read())
         f.close()
 
-    n = 8
+    n = 18
 
     # create dataset if not available locally (only takes a minute or three)
     if not os.path.exists('data/easy_dataset.npz'):

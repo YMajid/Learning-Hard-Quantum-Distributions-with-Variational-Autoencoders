@@ -65,7 +65,7 @@ def create_dataset(n_qubits=8, L=2, t_i=0.0, t_f=5.01):
 
     # the n input here is not qubits!!
     # n-qubits = log_2 ( L^n^2 )
-    hard = HardStateGenerator(2, 4) # 3,4 is the correct inputs for 18 qubit state
+    hard = HardStateGenerator(3, 4) # 3,4 is the correct inputs for 18 qubit state
     hard_d = hard.get_hard_distribution(mode="full")
     hard_d = sample(hard_d, n_qubits)
     library.writer(hard_d, 'hard_dataset')
