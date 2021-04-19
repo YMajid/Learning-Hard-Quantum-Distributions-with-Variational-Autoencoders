@@ -17,6 +17,7 @@ class Model:
         self.state = state
         self.n_layers = n_layers
         self.n_qubits = n_qubits
+        self.num_batches = int(parameters['num_batches'])
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
@@ -109,6 +110,9 @@ class Model:
         # loader = torch.utils.data.DataLoader(np.load("data/easy_dataset.npz")['easy_dset'].astype(float), batch_size=1000, shuffle=True )
 
         for i, data in enumerate(loader):
+
+            if i >= self.num_batches: break
+
             data = data[0].to(self.device)
             self.optimizer.zero_grad()
             reconstruction_data, mu, log_var = self.vae(data)
@@ -175,6 +179,8 @@ class Model:
             train_fidelities.append(train_fidelity)
             test_losses.append(test_loss)
             test_fidelities.append(test_fidelity)
+
+        print(f"Final train loss: {train_loss}\tFinal test loss: {test_loss}\tFinal Fidelity: {test_fidelity}")
 
         torch.save(self.vae.state_dict(), "results/saved_model_{}".format(self.state))
 
