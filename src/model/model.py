@@ -130,7 +130,7 @@ class Model:
             loss.backward()
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
-            fidelity += self.fidelity(data, reconstruction_data).item() # / data.size(0)
+            fidelity += self.fidelity(data, reconstruction_data).item()  / data.size(0)
 
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
@@ -162,7 +162,7 @@ class Model:
 
                 if i >= self.num_batches: break
 
-                data = data[0].to(self.device)
+                data = data.to(self.device)
                 reconstruction_data, mu, logvar = self.vae(data)
                 loss = self.loss_function(
                     data, reconstruction_data, mu, logvar)
