@@ -83,12 +83,22 @@ class Model:
         # product = torch.sqrt(product)
         # fidelity = torch.trace(product)
 
+        # Convert x, x_reconsruction to probability distributions
+        x_uniques, x_freqs = np.unique(x.cpu().detach().numpy(), return_counts=True, axis=1)
+        x_uniques_re, x_freqs_re = np.unique(x_reconstruction.cpu().detach().numpy(), return_counts=True, axis=1)
+
+        x_freqs_re = np.divide(x_freqs_re, x_reconstruction.size(1))
+        x_freqs = np.divide(x_freqs, x.size(1))
+
+        # print(x_freqs_re.shape)
+        # print(x_freqs.shape)
+
         # Bhattacharyya coeff
-        out = torch.sum(torch.sqrt(torch.abs(torch.mul(x_reconstruction, x))))
+        # out = torch.sum(torch.sqrt(torch.abs(torch.mul(x_freqs_re, x_freqs))))
+        out = np.sqrt(np.abs(np.matmul(x_freqs_re, x_freqs))).sum()
 
         return out
 
-        return fidelity
 
 
 
@@ -113,14 +123,14 @@ class Model:
 
             if i >= self.num_batches: break
 
-            data = data[0].to(self.device)
+            data = data.to(self.device)
             self.optimizer.zero_grad()
             reconstruction_data, mu, log_var = self.vae(data)
             loss = self.loss_function(data, reconstruction_data, mu, log_var)
             loss.backward()
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
-            fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+            fidelity += self.fidelity(data, reconstruction_data).item() # / data.size(0)
 
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))

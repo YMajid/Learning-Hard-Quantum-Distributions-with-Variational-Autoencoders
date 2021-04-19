@@ -2,6 +2,6 @@
   "epochs": 50,
   "num_batches": 5e3,
   "batch_size": 1e3,
-  "display_epoch": 10,
+  "display_epoch": 1,
   "learning_rate": 1e-3
 }
