@@ -76,11 +76,16 @@ class Model:
         """
         - Calculates the reconstruction fidelity.
         """
-        x = torch.sqrt(x)
-        product = torch.matmul(x, x_reconstruction)
-        product = torch.matmul(product, x)
-        product = torch.sqrt(product)
-        fidelity = torch.trace(product)
+        # x = torch.sqrt(x)
+        # product = torch.matmul(x, x_reconstruction)
+        # product = torch.matmul(product, x)
+        # product = torch.sqrt(product)
+        # fidelity = torch.trace(product)
+
+        # Bhattacharyya coeff
+        out = -torch.log(torch.sum(torch.sqrt(torch.abs(torch.mul(x_reconstruction, x)))))
+
+        return out
 
         return fidelity
 
@@ -111,7 +116,7 @@ class Model:
             loss.backward()
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
-            #fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+            fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
 
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
@@ -145,7 +150,7 @@ class Model:
                 loss = self.loss_function(
                     data, reconstruction_data, mu, logvar)
                 epoch_loss += loss.item() / data.size(0)
-                # fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+                fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
 
         return epoch_loss, fidelity
 

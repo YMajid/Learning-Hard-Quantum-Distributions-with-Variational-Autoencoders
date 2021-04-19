@@ -26,7 +26,7 @@ class Library:
         if file_name == "hard_dataset":
             np.savez(output_location, hard_dset=data)
         if file_name == "random_dataset":
-            np.savez(output_location, rand_dset=data)
+            np.savez(output_location, random_dset=data)
         return
 
     def reader(self, file_name):
