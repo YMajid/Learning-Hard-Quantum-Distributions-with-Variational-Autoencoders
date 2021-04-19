@@ -149,6 +149,9 @@ class Model:
 
         with torch.no_grad():
             for i, data in enumerate(loader):
+
+                if i >= self.num_batches: break
+
                 data = data[0].to(self.device)
                 reconstruction_data, mu, logvar = self.vae(data)
                 loss = self.loss_function(
