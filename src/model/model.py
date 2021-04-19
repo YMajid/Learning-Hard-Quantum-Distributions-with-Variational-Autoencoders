@@ -9,7 +9,7 @@ import os
 from hidden_layers import get_layers
 
 class Model:
-    def __init__(self, parameters, state='hard', n_layers=2, n_qubits=8):
+    def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8):
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])

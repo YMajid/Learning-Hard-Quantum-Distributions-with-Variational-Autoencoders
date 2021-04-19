@@ -2,7 +2,7 @@ import torch.nn as nn
 
 
 def get_layers(input_size, n_layers):
-
+    print(f'Creating {n_layers} layers')
     compression = input_size // 2
     reduction = compression // n_layers
 
