@@ -84,7 +84,7 @@ class Model:
         # fidelity = torch.trace(product)
 
         # Bhattacharyya coeff
-        out = -torch.log(torch.sum(torch.sqrt(torch.abs(torch.mul(x_reconstruction, x)))))
+        out = torch.sum(torch.sqrt(torch.abs(torch.mul(x_reconstruction, x))))
 
         return out
 
