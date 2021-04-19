@@ -39,6 +39,8 @@ def create_dataset(n_qubits=8, L=2, t_i=0.0, t_f=5.01):
     Raises:
     """
 
+    np.random.seed(123456789)
+
     # library = Library('data/l{}n{}/'.format(L, n_qubits))
     library = Library('data/')
     # times = np.arange(t_i, t_f, 1.0)
