@@ -9,13 +9,14 @@ import os
 from hidden_layers import get_layers
 
 class Model:
-    def __init__(self, parameters, state='hard', n_layers=2):
+    def __init__(self, parameters, state='hard', n_layers=2, n_qubits=8):
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])
         self.learning_rate = parameters['learning_rate']
         self.state = state
         self.n_layers = n_layers
+        self.n_qubits = n_qubits
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
@@ -40,13 +41,11 @@ class Model:
             - Adam optimizer
         Raises:
         """
-        input_size = 18 if not self.state == 'random' else 15  # should be same as n_qubits I think?
+        input_size = self.n_qubits #18 if not self.state == 'random' else 15  # should be same as n_qubits I think?
         # n_layers = 2
         VAE_layers = get_layers(input_size, self.n_layers)
         vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get('decoder') , VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
-
-        train_loaders, test_loaders = get_data(self.batch_size, 'data/')
-
+        train_loaders, test_loaders = get_data(self.batch_size, 'data/', state=self.state)
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
         return vae, train_loaders, test_loaders, optimizer
@@ -78,7 +77,7 @@ class Model:
         - Calculates the reconstruction fidelity.
         """
         x = torch.sqrt(x)
-        product = torch.mathmul(x, x_reconstruction)
+        product = torch.matmul(x, x_reconstruction)
         product = torch.matmul(product, x)
         product = torch.sqrt(product)
         fidelity = torch.trace(product)
@@ -101,16 +100,21 @@ class Model:
         epoch_loss = 0
         fidelity = 0
 
-        for i, data in enumerate(loader):
-            data = data[0].to(self.device)
+        print(0)
+        # del loader
+        # loader = torch.utils.data.DataLoader(np.load("data/easy_dataset.npz")['easy_dset'].astype(float), batch_size=1000, shuffle=True )
 
+        for i, data in enumerate(loader):
+            print(1)
+            data = data[0].to(self.device)
             self.optimizer.zero_grad()
             reconstruction_data, mu, log_var = self.vae(data)
             loss = self.loss_function(data, reconstruction_data, mu, log_var)
             loss.backward()
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
-            fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+            #fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+            print("Done batch: " + str(i))
 
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
@@ -153,11 +157,12 @@ class Model:
         Returns:
         Raises:
         """
-        index = 0 if self.state == 'easy' else 1 if self.state == 'hard' else 2
-        train_loader, test_loader = self.train_loaders[index], self.test_loaders[index]
+        # index = 0 if self.state == 'easy' else 1 if self.state == 'hard' else 2
+        train_loader, test_loader = self.train_loaders, self.test_loaders
         train_losses, test_losses = [], []
         train_fidelities, test_fidelities = [], []
 
+        print("Beginning Training:")
         for e in range(0, self.epochs):
             train_loss, train_fidelity = self.train(e, train_loader)
             test_loss, test_fidelity = self.test(e, train_loader)

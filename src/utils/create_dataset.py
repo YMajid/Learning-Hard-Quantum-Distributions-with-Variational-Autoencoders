@@ -26,7 +26,7 @@ def sample(pdist, n_qubits, N=50000000):
 
     return out
 
-def create_dataset(n_qubits=18, L=2, t_i=0.0, t_f=5.01):
+def create_dataset(n_qubits=8, L=2, t_i=0.0, t_f=5.01):
     """
     - Generates easy, hard and random datasets and saves them as .npz files
 
@@ -57,15 +57,15 @@ def create_dataset(n_qubits=18, L=2, t_i=0.0, t_f=5.01):
     print("Finished generating easy dataset.")
 
     rand = RandomStateGenerator()
-    rand_d = rand.make_dset_hard(15) # 18qubits is too big to handle
-    rand_d = sample(rand_d, 15)
+    rand_d = rand.make_dset_hard(n_qubits) # 18qubits is too big to handle
+    rand_d = sample(rand_d, n_qubits)
     library.writer(rand_d, 'random_dataset')
     del rand_d, rand
     print("Finished generating random dataset.")
 
     # the n input here is not qubits!!
     # n-qubits = log_2 ( L^n^2 )
-    hard = HardStateGenerator(3, 4) # correct inputs for 18 qubit state
+    hard = HardStateGenerator(2, 4) # 3,4 is the correct inputs for 18 qubit state
     hard_d = hard.get_hard_distribution(mode="full")
     hard_d = sample(hard_d, n_qubits)
     library.writer(hard_d, 'hard_dataset')
