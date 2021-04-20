@@ -54,7 +54,7 @@ class Model:
         train_loaders, test_loaders = get_data(self.batch_size, 'data/', state=self.state)
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
-        if load == None:
+        if not load == None:
             vae.load_state_dict(torch.load(load))
             vae.eval()
 
