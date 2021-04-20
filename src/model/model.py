@@ -9,7 +9,7 @@ import os
 from hidden_layers import get_layers
 
 class Model:
-    def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8):
+    def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8, load=None):
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])
@@ -20,12 +20,17 @@ class Model:
         self.num_batches = int(parameters['num_batches'])
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
-        self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model()
-        train_losses, test_losses, train_fielities, test_fidelities = self.run_model()
-        self.plot_losses(train_losses, test_losses)
-        self.plot_fidelities(train_fielities, test_fidelities)
+        self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model(load=load)
 
-    def prepare_model(self):
+        if load == None:
+            train_losses, test_losses, train_fielities, test_fidelities = self.run_model()
+            self.plot_losses(train_losses, test_losses)
+            self.plot_fidelities(train_fielities, test_fidelities)
+        else:
+            f = self.fidelity(self.train_loaders)
+            print(f)
+
+    def prepare_model(self, load=None):
         """
         - Initializes VAE model and loads it onto the appropriate device.
         - Reads and loads the data in the form of an array of Torch DataLoaders.
@@ -48,6 +53,10 @@ class Model:
         vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get('decoder') , VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
         train_loaders, test_loaders = get_data(self.batch_size, 'data/', state=self.state)
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
+
+        if load == None:
+            vae.load_state_dict(torch.load(load))
+            vae.eval()
 
         return vae, train_loaders, test_loaders, optimizer
 
@@ -111,12 +120,12 @@ class Model:
         f2, _ = np.histogram(x_re, density=True, bins=b)
 
         plt.hist(x, bins=b, density=True )
-        plt.show()
+        plt.savefig('og.png', dpi=500)
         plt.clf()
         plt.close()
 
         plt.hist(x_re, bins=b, density=True )
-        plt.show()
+        plt.savefig("re.png", dpi=500)
         plt.clf()
         plt.close()
 
