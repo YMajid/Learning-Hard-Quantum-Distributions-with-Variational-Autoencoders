@@ -208,7 +208,7 @@ class Model:
 
         print(f"Final train loss: {train_loss}\tFinal test loss: {test_loss}\tFinal Fidelity: {test_fidelity}")
 
-        torch.save(self.vae.state_dict(), "results/saved_model_{}".format(self.state))
+        torch.save(self.vae.state_dict(), f"results/saved_model_{self.state}_L{self.n_layers}")
 
         return train_losses, test_losses, train_fidelities, test_fidelities
 
@@ -227,7 +227,7 @@ class Model:
         plt.plot(epochs, test_losses, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("VAE Training Loss for the " + str(self.state) + " state")
+        plt.title("VAE Training Loss for the " + str(self.state) + " state with " + str(self.n_layers) + "layers")
         plt.legend()
         plt.xlim(0, len(train_losses))
         figure_num = 1
@@ -251,7 +251,7 @@ class Model:
         plt.plot(epochs, test_fidelities, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("VAE Training Loss for the " + str(self.state) + " state")
+        plt.title("VAE Training Loss for the " + str(self.state) + " state with " + str(self.n_layers) + "layers")
         plt.legend()
         plt.xlim(0, len(test_fidelities))
         figure_num = 1

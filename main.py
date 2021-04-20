@@ -30,4 +30,4 @@ if __name__ == '__main__':
         print("Dataset found")
 
     # train_loaders, test_loaders = get_data()
-    Model(parameters, state='random', n_qubits=n, n_layers=1)
+    Model(parameters, state='random', n_qubits=n, n_layers=5)
