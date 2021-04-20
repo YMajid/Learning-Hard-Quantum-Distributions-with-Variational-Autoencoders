@@ -99,17 +99,19 @@ class Model:
 
         # return out
 
-        re = self.vae.decoder(self.vae.encoder(torch.Tensor(x.dataset).to(self.device)))
-        x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))
-        x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
+        # self.vae.to(torch.device('cpu'))
+        # re = self.vae.decoder(self.vae.encoder(torch.Tensor(x.dataset).double()))
+        # x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))
+        # x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
+        #
+        # l, u = x.min(), x.max()
+        # f1, b = np.histogram(x, density=True, range=(l,u))
+        # f2, _ = np.historgram(x_re, density=True, bins=b)
+        #
+        # out = torch.sum(torch.sqrt(torch.abs(torch.mul(x, x_re))))
+        # self.vae.to(torch.device('cuda'))
 
-        l, u = x.min(), x.max()
-        f1, b = np.histogram(x, density=True, range=(l,u))
-        f2, _ = np.historgram(x_re, density=True, bins=b)
-
-        out = torch.sum(torch.sqrt(torch.abs(torch.mul(x, x_re))))
-
-        return out
+        return 0 #out
 
 
     def train(self, epoch, loader):
