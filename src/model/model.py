@@ -73,33 +73,43 @@ class Model:
 
         return loss
 
-    def fidelity(self, x, x_reconstruction):
+    def fidelity(self, x):
         """
         - Calculates the reconstruction fidelity.
         """
+        # old
         # x = torch.sqrt(x)
         # product = torch.matmul(x, x_reconstruction)
         # product = torch.matmul(product, x)
         # product = torch.sqrt(product)
         # fidelity = torch.trace(product)
 
+        # newer
         # Convert x, x_reconsruction to probability distributions
-        x_uniques, x_freqs = np.unique(x.cpu().detach().numpy(), return_counts=True, axis=1)
-        x_uniques_re, x_freqs_re = np.unique(x_reconstruction.cpu().detach().numpy(), return_counts=True, axis=1)
+        # x_uniques, x_freqs = np.unique(x.cpu().detach().numpy(), return_counts=True, axis=0)
+        # x_uniques_re, x_freqs_re = np.unique(x_reconstruction.cpu().detach().numpy(), return_counts=True, axis=0)
+        #
+        # x_freqs_re = np.divide(x_freqs_re, x_reconstruction.size(1))
+        # x_freqs = np.divide(x_freqs, x.size(1))
 
-        x_freqs_re = np.divide(x_freqs_re, x_reconstruction.size(1))
-        x_freqs = np.divide(x_freqs, x.size(1))
-
-        # print(x_freqs_re.shape)
-        # print(x_freqs.shape)
 
         # Bhattacharyya coeff
         # out = torch.sum(torch.sqrt(torch.abs(torch.mul(x_freqs_re, x_freqs))))
-        out = np.sqrt(np.abs(np.matmul(x_freqs_re, x_freqs))).sum()
+        # out = np.sqrt(np.abs(np.matmul(x_freqs, x_freqs_re))).sum()
+
+        # return out
+
+        re = self.vae.decoder(self.vae.encoder(torch.Tensor(x.dataset).to(self.device)))
+        x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))
+        x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
+
+        l, u = x.min(), x.max()
+        f1, b = np.histogram(x, density=True, range=(l,u))
+        f2, _ = np.historgram(x_re, density=True, bins=b)
+
+        out = torch.sum(torch.sqrt(torch.abs(torch.mul(x, x_re))))
 
         return out
-
-
 
 
     def train(self, epoch, loader):
@@ -130,11 +140,12 @@ class Model:
             loss.backward()
             epoch_loss += loss.item() / data.size(0)
             self.optimizer.step()
-            fidelity += self.fidelity(data, reconstruction_data).item()  / data.size(0)
+
 
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
 
+        fidelity = self.fidelity(loader)
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss) +
