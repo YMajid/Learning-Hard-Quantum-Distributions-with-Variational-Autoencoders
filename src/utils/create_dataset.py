@@ -2,7 +2,7 @@ import numpy as np
 from library import Library
 import sys
 sys.path.insert(-1, "gen_data")
-from gen_easy import EasyStateGenerator
+# from gen_easy import EasyStateGenerator
 from gen_random import RandomStateGenerator
 from gen_hard import HardStateGenerator
 import itertools
