@@ -10,6 +10,7 @@ from hidden_layers import get_layers
 
 class Model:
     def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8, load=None):
+        self.compression = 0.5
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])
@@ -49,7 +50,7 @@ class Model:
         """
         input_size = self.n_qubits #18 if not self.state == 'random' else 15  # should be same as n_qubits I think?
         # n_layers = 2
-        VAE_layers = get_layers(input_size, self.n_layers)
+        VAE_layers = get_layers(input_size, self.n_layers, self.compression)
         vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get('decoder') , VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
         train_loaders, test_loaders = get_data(self.batch_size, 'data/', state=self.state)
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
@@ -107,30 +108,33 @@ class Model:
         # out = np.sqrt(np.abs(np.matmul(x_freqs, x_freqs_re))).sum()
 
         # return out
-
-        self.vae.to(torch.device('cpu'))
-        re = self.vae(torch.Tensor(x.dataset).double())
-        re = re[0].detach().numpy()
         x = x.dataset
         x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))
-        x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
-
-        l, u = x.min(), x.max()
+        l, u = x.min(), x.max()+1
         f1, b = np.histogram(x, density=True, bins=np.arange(l,u,1))
-        f2, _ = np.histogram(x_re, density=True, bins=b)
 
-        plt.hist(x, bins=b, density=True )
-        plt.savefig('og.png', dpi=500)
-        plt.clf()
-        plt.close()
+        f2 = np.zeros(f1.shape)
+        ns = 0
+        dim = int(self.n_qubits * self.compression)
+        while ns < 5:
+            re = np.random.multivariate_normal(np.zeros(dim), np.eye(dim), size=int(1.5e7) )
+            re = self.vae.decode(re)
+            x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
+            f2 += np.histogram(x_re, density=True, bins=b)[0]
+            ns += 1
+
+        # plt.hist(x, bins=b, density=True )
+        # plt.savefig('og.png', dpi=500)
+        # plt.clf()
+        # plt.close()
 
         plt.hist(x_re, bins=b, density=True )
         plt.savefig("re.png", dpi=500)
         plt.clf()
         plt.close()
 
-        print(l,u)
-        print(b)
+        # print(l,u)
+        # print(b)
 
         out = np.sqrt(np.abs(np.matmul(x, x_re))).sum()
         print(out)
@@ -156,7 +160,6 @@ class Model:
 
         # del loader
         # loader = torch.utils.data.DataLoader(np.load("data/easy_dataset.npz")['easy_dset'].astype(float), batch_size=1000, shuffle=True )
-
         for i, data in enumerate(loader):
 
             if i >= self.num_batches: break
@@ -164,7 +167,7 @@ class Model:
             data = data.to(self.device)
             self.optimizer.zero_grad()
             reconstruction_data, mu, log_var = self.vae(data)
-            loss = self.loss_function(data, reconstruction_data, mu, log_var)
+            loss = self.loss_function(data, reconstruction_data, mu, log_var, weight=0.85*(epoch/self.epochs))
             loss.backward()
             epoch_loss += loss.item() / (data.size(0) * self.num_batches )
             self.optimizer.step()
@@ -173,7 +176,8 @@ class Model:
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
 
-        # fidelity = self.fidelity(loader)
+        # if epoch % 25 == 0 or epoch == 0 or epoch==1:
+        #     fidelity = self.fidelity(loader)
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss) +

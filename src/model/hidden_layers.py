@@ -1,9 +1,9 @@
 import torch.nn as nn
 
 
-def get_layers(input_size, n_layers):
+def get_layers(input_size, n_layers, compression):
     print(f'Creating {n_layers} layers')
-    compression = input_size // 2
+    compression = int(input_size * compression)
     reduction = compression // n_layers
 
     encoder = None
