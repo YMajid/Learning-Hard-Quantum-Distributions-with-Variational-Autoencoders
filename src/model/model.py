@@ -99,19 +99,36 @@ class Model:
 
         # return out
 
-        # self.vae.to(torch.device('cpu'))
-        # re = self.vae.decoder(self.vae.encoder(torch.Tensor(x.dataset).double()))
-        # x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))
-        # x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
-        #
-        # l, u = x.min(), x.max()
-        # f1, b = np.histogram(x, density=True, range=(l,u))
-        # f2, _ = np.historgram(x_re, density=True, bins=b)
-        #
-        # out = torch.sum(torch.sqrt(torch.abs(torch.mul(x, x_re))))
-        # self.vae.to(torch.device('cuda'))
+        self.vae.to(torch.device('cpu'))
+        re = self.vae(torch.Tensor(x.dataset).double())
+        re = re[0].detach().numpy()
+        x = x.dataset
+        x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))
+        x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
 
-        return 0 #out
+        l, u = x.min(), x.max()
+        f1, b = np.histogram(x, density=True, bins=np.arange(l,u,1))
+        f2, _ = np.histogram(x_re, density=True, bins=b)
+
+        plt.hist(x, bins=b, density=True )
+        plt.show()
+        plt.clf()
+        plt.close()
+
+        plt.hist(x_re, bins=b, density=True )
+        plt.show()
+        plt.clf()
+        plt.close()
+
+        print(l,u)
+        print(b)
+
+        out = np.sqrt(np.abs(np.matmul(x, x_re))).sum()
+        print(out)
+        print(out/ x.shape[0])
+        self.vae.to(torch.device('cuda'))
+
+        return out / x.shape[0]
 
 
     def train(self, epoch, loader):
@@ -140,7 +157,7 @@ class Model:
             reconstruction_data, mu, log_var = self.vae(data)
             loss = self.loss_function(data, reconstruction_data, mu, log_var)
             loss.backward()
-            epoch_loss += loss.item() / data.size(0)
+            epoch_loss += loss.item() / (data.size(0) * self.num_batches )
             self.optimizer.step()
 
 
@@ -179,8 +196,8 @@ class Model:
                 reconstruction_data, mu, logvar = self.vae(data)
                 loss = self.loss_function(
                     data, reconstruction_data, mu, logvar)
-                epoch_loss += loss.item() / data.size(0)
-                # fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+                epoch_loss += loss.item() /(data.size(0) * self.num_batches )
+            # fidelity = self.fidelity(loader)
 
         return epoch_loss, fidelity
 
