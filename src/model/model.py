@@ -147,7 +147,7 @@ class Model:
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
 
-        fidelity = self.fidelity(loader)
+        # fidelity = self.fidelity(loader)
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss) +
@@ -180,7 +180,7 @@ class Model:
                 loss = self.loss_function(
                     data, reconstruction_data, mu, logvar)
                 epoch_loss += loss.item() / data.size(0)
-                fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
+                # fidelity += self.fidelity(data, reconstruction_data).item() / data.size(0)
 
         return epoch_loss, fidelity
 
