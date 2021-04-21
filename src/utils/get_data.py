@@ -73,7 +73,7 @@ def __to_torch(batch_size, file_path, state='hard'):
     dataset = raw.astype(float) #TensorDataset(tensor.double())
 
     # train_sampler, test_sampler = __get_samplers(dataset, 0.3)
-    split = int(np.floor(0.3 * len(dataset)))
+    split = int(np.floor(0.9 * len(dataset)))
     # train_loader = DataLoader(
     #     dataset, batch_size=batch_size, sampler=train_sampler)
     # test_loader = DataLoader(
