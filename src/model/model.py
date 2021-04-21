@@ -116,11 +116,12 @@ class Model:
         f2 = np.zeros(f1.shape)
         ns = 0
         dim = int(self.n_qubits * self.compression)
-        while ns < 5:
-            re = np.random.multivariate_normal(np.zeros(dim), np.eye(dim), size=int(1.5e7) )
-            re = self.vae.decode(re)
+        while ns < 10:
+            re = np.random.multivariate_normal(np.zeros(dim), np.eye(dim), size=int(0.375e7) )
+            re = self.vae.decode(torch.Tensor(re).double().to(self.device)).cpu().detach().numpy()
             x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
             f2 += np.histogram(x_re, density=True, bins=b)[0]
+            print(f"Sampled fidelity {ns}")
             ns += 1
 
         # plt.hist(x, bins=b, density=True )
@@ -136,12 +137,11 @@ class Model:
         # print(l,u)
         # print(b)
 
-        out = np.sqrt(np.abs(np.matmul(x, x_re))).sum()
+        out = np.sqrt(np.abs(np.matmul(f1, f2))).sum()
         print(out)
         print(out/ x.shape[0])
-        self.vae.to(torch.device('cuda'))
 
-        return out / x.shape[0]
+        return out
 
 
     def train(self, epoch, loader):
@@ -176,7 +176,7 @@ class Model:
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
 
-        # if epoch % 25 == 0 or epoch == 0 or epoch==1:
+        # if epoch % 5 == 0 or epoch == 0 or epoch==1 or epoch == 2:
         #     fidelity = self.fidelity(loader)
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
