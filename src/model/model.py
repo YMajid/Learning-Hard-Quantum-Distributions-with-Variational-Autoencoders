@@ -176,8 +176,8 @@ class Model:
             if i % 1000 == 0:
                 print("Done batch: " + str(i) + "\tCurr Loss: " + str(epoch_loss))
 
-        if epoch % 5 == 0 or epoch == 0 or epoch==1 or epoch == 2:
-            fidelity = self.fidelity(loader)
+        # if epoch % 5 == 0 or epoch == 0 or epoch==1 or epoch == 2:
+        #     fidelity = self.fidelity(loader)
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss) +
