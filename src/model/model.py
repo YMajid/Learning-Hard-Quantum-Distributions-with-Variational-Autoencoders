@@ -264,6 +264,7 @@ class Model:
         while os.path.exists(f'results/loss-{figure_num}.png'):
             figure_num += 1
         plt.savefig(f'results/loss-{figure_num}.png')
+        plt.clf()
         print(f'results/loss-{figure_num}.png')
 
     def plot_fidelities(self, train_fidelities, test_fidelities):
@@ -281,11 +282,12 @@ class Model:
         plt.plot(epochs, test_fidelities, "b-", label="Testing Loss")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("VAE Training Loss for the " + str(self.state) + " state with " + str(self.n_layers) + "layers")
+        plt.title("VAE Training Fidelities for the " + str(self.state) + " state with " + str(self.n_layers) + "layers")
         plt.legend()
         plt.xlim(0, len(test_fidelities))
         figure_num = 1
         while os.path.exists(f'results/fidelities-{figure_num}.png'):
             figure_num += 1
         plt.savefig(f'results/fidelities-{figure_num}.png')
+        plt.clf()
         print(f'results/fidelities-{figure_num}.png')
