@@ -33,16 +33,17 @@ if __name__ == '__main__':
         create_dataset(n_qubits=args.n)
     else:
         print("Dataset found.")
+        
+    print(args.pretrained)
 
     # Load and plot fidelities or training
-    if args.pretrained:
-        for state in ['easy', 'random', 'hard']:
-            fs = []
-            for i in range(1, 6):
+    for state in ['easy', 'random', 'hard']:
+        fs = []
+        for i in range(1, 6):
+            m = None
+            if args.pretrained:
                 m = Model(parameters, verbosity = args.v, state=state, n_qubits=args.n, n_layers=i, load=f"results/saved_model_{state}_L{i}")
-                fs.append(m.fidelity)
-            m.plot_fidelities(fs, state=state)
-    else:
-        for state in ['easy', 'random', 'hard']:
-            for i in range(1, 6):
+            else:
                 m = Model(parameters, verbosity = args.v, state=state, n_qubits=args.n, n_layers=i)
+            fs.append(m.fidelity)
+        m.plot_fidelities(fs, state=state)
