@@ -9,6 +9,7 @@ def get_data(batch_size=100, file_path='data/l2n4_bin/', state='hard'):
     Args:
         - batch_size: Size of batches
         - file_path: Path of file location
+        - state: quantum state
     Returns:
         - train_loaders: Array of Torch DataLoaders representing quantum states for training
         - test_loaders: Array of Torch DataLoaders representing quantum states for testing
@@ -24,10 +25,9 @@ def __get_raw_data(file_path, state='hard'):
     """
     Args:
         - file_path: Path of file location
+        - state: quantum state
     Returns:
-        - raw_easy: Numpy array of easy quantum states
-        - raw_hard: Numpy array of hard quantum states
-        - raw_random: Numpy array of random quantum states
+        - raw: Numpy array of quantum states
     Raises:
     """
     library = Library(file_path)

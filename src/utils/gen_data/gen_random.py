@@ -3,6 +3,7 @@ import numpy as np
 # Code for generating the random hard state, adapted from original authors
 
 class RandomStateGenerator:
+    # Given by authors
     @staticmethod
     def gen_unitary(n):
         n = 2 ** n
