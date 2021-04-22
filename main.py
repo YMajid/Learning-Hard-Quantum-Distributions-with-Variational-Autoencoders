@@ -29,5 +29,13 @@ if __name__ == '__main__':
     else:
         print("Dataset found")
 
-    # train_loaders, test_loaders = get_data()
-    Model(parameters, state='random', n_qubits=n, n_layers=5)
+    # Run model for easy, hard and random states
+    for i in range(1,6):
+        Model(parameters, state='easy', n_qubits=n, n_layers=i)
+
+    for i in range(1,6):
+        Model(parameters, state='hard', n_qubits=n, n_layers=i)
+
+    for i in range(1,6):
+        Model(parameters, state='random', n_qubits=n, n_layers=i)
+
