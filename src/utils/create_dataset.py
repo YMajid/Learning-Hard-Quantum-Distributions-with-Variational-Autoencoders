@@ -4,6 +4,7 @@ from gen_random import RandomStateGenerator
 import numpy as np
 from library import Library
 import sys
+import os
 sys.path.insert(-1, "gen_data")
 
 
@@ -42,6 +43,8 @@ def create_dataset(n_qubits=8):
 
     np.random.seed(123456789)
 
+    if not os.path.exists('data/'):
+        os.makedirs('data/')
     library = Library('data/')
 
     easy = RandomStateGenerator()
