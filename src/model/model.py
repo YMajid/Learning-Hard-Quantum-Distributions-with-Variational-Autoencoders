@@ -170,7 +170,7 @@ class Model:
             epoch_loss += loss.item() / (data.size(0) * self.num_batches)
             self.optimizer.step()
 
-            if self.verbosity == 0 or (self.verbosity == 1 and (epoch + 1) % self.display_epochs == 0 and i % self.batch_size == 0):
+            if (self.verbosity == 0 or (self.verbosity == 1 and (epoch + 1) % self.display_epochs == 0)) and i % self.batch_size == 0:
                 print("Done batch: " + str(i) +
                       "\tCurr Loss: " + str(epoch_loss))
 
