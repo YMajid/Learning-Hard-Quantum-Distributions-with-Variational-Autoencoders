@@ -174,7 +174,7 @@ class Model:
                 print("Done batch: " + str(i) +
                       "\tCurr Loss: " + str(epoch_loss))
 
-        if self.verbosity == 0 or self.verbosity ==1 and (epoch + 1) % self.display_epochs == 0:
+        if self.verbosity == 0 or (self.verbosity ==1 and (epoch + 1) % self.display_epochs == 0):
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss)
                   )
