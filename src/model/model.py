@@ -96,6 +96,8 @@ class Model:
             -Fidelity for the input sample
         Raises:
         """
+        self.device = torch.device('cpu')
+        self.vae.to(self.device)
         x = x.dataset
         x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1)) # Converts binary string to integer
         l, u = x.min(), x.max()+1
@@ -108,7 +110,7 @@ class Model:
             re = np.random.multivariate_normal(
                 np.zeros(dim), np.eye(dim), size=int(0.375e7))
             re = self.vae.decode(torch.Tensor(re).double().to(
-                self.device)).cpu().detach().numpy()
+                self.device)).detach().numpy()
             x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
             f2 += np.histogram(x_re, density=True, bins=b)[0]
             print(f"Sampled fidelity {ns}")
@@ -258,13 +260,14 @@ class Model:
         if state == None:
             state = self.state
 
-        epochs = np.arange(0, len(fs), 1)
+        epochs = np.arange(1, len(fs)+1, 1)
         plt.plot(epochs, fs, "b--o", label="Fidelity")
-        plt.xlabel("Epoch")
+        plt.xlabel("Layers")
+        plt.xticks(ticks=epochs)
         plt.ylabel("Fidelity")
         plt.title("VAE Fidelities for the " + str(state) +
                   " state")
-        plt.xlim(0, epochs.max())
+        plt.xlim(epochs.min(), epochs.max())
         figure_num = 1
         while os.path.exists(f'results/fidelities-{state}-{figure_num}.png'):
             figure_num += 1
