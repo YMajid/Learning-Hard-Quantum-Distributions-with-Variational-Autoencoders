@@ -8,36 +8,36 @@ sys.path.append('src/model')
 sys.path.append('src/utils')
 sys.path.append("src/utils/gen_data")
 
+from model import Model
 from create_dataset import create_dataset
 
-from model import Model
-
 if __name__ == '__main__':
-    print("Main File.")
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Learning Hard Quantum States Using a Variational AutoEncoder')
+    parser.add_argument('-v', type=int, default=0, metavar='N', help='Verbosity (0 = all information, else = nothing).')
+    parser.add_argument('-n', type=int, default=18, metavar='N', help='Number of qubits.')
+    parser.add_argument('--result', type=str, default='result/', metavar='result/', help='Directory for output files.')
+    parser.add_argument('--pretrained', type=bool, default=False, metavar='False', help='Load pretrained model.')
+    parser.add_argument('--param', type=str, default='param/parameters.json', metavar='param/param.json',
+                        help='Parameter file path.')
+    args = parser.parse_args()
 
     # Read parameter JSON file, convert it into a Python dictionary
-    with open('param/parameters.json') as f:
+    with open(args.param) as f:
         parameters = json.loads(f.read())
         f.close()
 
-    n = 18 # number of qubits
-
-    # create dataset if not available locally (only takes a minute or three)
-    if not os.path.exists('data/easy_dataset.npz'):
-        print("Creating dataset, please wait one moment")
-        create_dataset(n_qubits=n)
+    # Create dataset if not available locally (only takes a minute or three)
+    if not args.pretrained or not os.path.exists('data/easy_dataset.npz'):
+        print("Creating dataset, please wait one moment.")
+        create_dataset(n_qubits=args.n)
     else:
-        print("Dataset found")
-
-    # Generate, train, and save each model
-    # for state in ['easy', 'random', 'hard']:
-    #     for i in range(1,6):
-    #         m = Model(parameters, state=state, n_qubits=n, n_layers=i)
+        print("Dataset found.")
 
     # Load and plot fidelities
     for state in ['easy', 'random', 'hard']:
         fs = []
-        for i in range(1,6):
-            m = Model(parameters, state=state, n_qubits=n, n_layers=i, load=f"results/saved_model_{state}_L{i}")
+        for i in range(1, 6):
+            m = Model(parameters, state=state, n_qubits=args.n, n_layers=i, load=f"results/saved_model_{state}_L{i}")
             fs.append(m.fidelity)
         m.plot_fidelities(fs, state=state)

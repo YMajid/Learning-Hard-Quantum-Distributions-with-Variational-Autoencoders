@@ -1,6 +1,7 @@
 # Learning Hard Quantum Distributions with Variational Autoencoders
 
 ## Original Paper
+
 You can find the original paper [here](https://www.nature.com/articles/s41534-018-0077-z).
 
 ## Project Structure
@@ -25,6 +26,7 @@ project
 │       └── library.py
 └── main.py
 ```
+
 - `/data`
     - Where the generated data is stored
     - Where the VAE model reads data from
@@ -39,6 +41,30 @@ project
         - Contains the code to generate, save and read datasets
         - `/gen_data`
             - Code to generate the datasets
+
+## Example Command
+
+```
+python3 main.py -v 0 -n 18 --param param/parameters.json --pretrained False
+```
+
+## Argparse --help
+
+```
+usage: main.py [-h] [-v N] [-n N] [--result result/] [--pretrained False]
+               [--param param/param.json]
+
+Learning Hard Quantum States Using a Variational AutoEncoder
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v N                  Verbosity (0 = all information, else = nothing).
+  -n N                  Number of qubits.
+  --result result/      Directory for output files.
+  --pretrained False    Load pretrained model.
+  --param param/param.json
+                        Parameter file path.
+```
 
 ## Contributing
 
