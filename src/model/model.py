@@ -30,8 +30,8 @@ class Model:
             self.plot_losses(train_losses, test_losses)
             self.plot_fidelities(train_fielities, test_fidelities)
         else:
-            f = self.fidelity(self.train_loaders)
-            print(f)
+            self.fidelity = self.get_fidelity(self.train_loaders)
+
 
     def prepare_model(self, load=None):
         """
@@ -86,7 +86,7 @@ class Model:
 
         return loss
 
-    def fidelity(self, x):
+    def get_fidelity(self, x):
         """
         - Calculates the reconstruction fidelity.
         
@@ -244,7 +244,7 @@ class Model:
         plt.clf()
         print(f'results/loss-{figure_num}.png')
 
-    def plot_fidelities(self, train_fidelities, test_fidelities):
+    def plot_fidelities(self, fs):
         """
         Args:
             - train_losses: list of training losses from run_model
@@ -254,18 +254,16 @@ class Model:
         Returns:
         Raises:
         """
-        epochs = np.arange(0, len(train_fidelities), 1)
-        plt.plot(epochs, train_fidelities, "g-", label="Training Loss")
-        plt.plot(epochs, test_fidelities, "b-", label="Testing Loss")
+        epochs = np.arange(0, len(fs), 1)
+        plt.plot(epochs, fs, "b--o", label="Fidelity")
         plt.xlabel("Epoch")
-        plt.ylabel("Loss")
+        plt.ylabel("Fidelity")
         plt.title("VAE Training Fidelities for the " + str(self.state) +
                   " state with " + str(self.n_layers) + "layers")
-        plt.legend()
-        plt.xlim(0, len(test_fidelities))
+        plt.xlim(0, epochs.max())
         figure_num = 1
-        while os.path.exists(f'results/fidelities-{figure_num}.png'):
+        while os.path.exists(f'results/fidelities-{self.state}-{figure_num}.png'):
             figure_num += 1
-        plt.savefig(f'results/fidelities-{figure_num}.png')
+        plt.savefig(f'results/fidelities-{self.state}-{figure_num}.png')
         plt.clf()
-        print(f'results/fidelities-{figure_num}.png')
+        print(f'results/fidelities-{self.state}-{figure_num}.png')
