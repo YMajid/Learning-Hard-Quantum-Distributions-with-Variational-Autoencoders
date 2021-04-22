@@ -3,7 +3,18 @@ import torch.nn as nn
 
 # function to get the architecture of the VAE based on compression (the variable we're changing throughout the analysis)
 def get_layers(input_size, n_layers, compression):
+    """
+    Args:
+        input_size: size of input to first layer
+        n_layers: number of desired layers
+        compression: desired compression factor
+
+    Returns: dictionary containing encder, decoder, mu, and logvar layers
+
+    """
     print(f'Creating {n_layers} layers')
+
+    # Determine reduction factor
     compression = int(input_size * compression)
     reduction = compression // n_layers
 
