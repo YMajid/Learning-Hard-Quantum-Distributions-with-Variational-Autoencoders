@@ -40,9 +40,8 @@ class Model:
 
         # Train the model if it wasnt loaded, otherwise compute fidelity
         if load == None:
-            train_losses, test_losses, train_fielities, test_fidelities = self.run_model()
+            train_losses, test_losses = self.run_model()
             self.plot_losses(train_losses, test_losses)
-            self.plot_fidelities(train_fielities, test_fidelities)
         else:
             self.fidelity = self.get_fidelity(self.train_loaders)
 
