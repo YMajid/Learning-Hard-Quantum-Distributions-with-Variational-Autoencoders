@@ -66,8 +66,6 @@ class HardStateGenerator:
         perms = itertools.product(x, repeat=self.n ** 2)
 
         for i, p in enumerate(perms):
-            if i % 1000 == 0:
-                print(i/(self.L**(self.n**2)))
             y = p
             omega = np.exp((2 * np.pi * np.complex(1j)) / self.L * 1.0)
             z = np.power(omega, y)
