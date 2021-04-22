@@ -116,13 +116,18 @@ class Model:
             re = np.random.multivariate_normal(
                 np.zeros(dim), np.eye(dim), size=int(0.375e7))
             re = self.vae.decode(torch.Tensor(re).double().to(
-                self.device)).detach().numpy()
+                self.device)).cpu().detach().numpy()
             x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
-            f2 += np.histogram(x_re, density=True, bins=b)[0]
+            f2 += np.histogram(x_re, bins=b)[0]
             print(f"Sampled fidelity {ns}")
             ns += 1
 
+        db = np.array(np.diff(b), float)
+        f2 = f2 / db / f2.sum()
+
+        # out = np.sqrt(np.abs(np.matmul(f1, f2))).sum()
         out = np.sum(np.sqrt(np.multiply(f1,f2)))
+
         print(f"Fidelity: {out}")
         del re, x_re, f1, f2, x
         torch.cuda.empty_cache()
@@ -267,7 +272,7 @@ class Model:
             state = self.state
             
         epochs = np.arange(1, len(fs)+1, 1)
-        plt.errorbar(epochs, fs, yerr=fs_std, label="Fidelity", linestyle='--', marker ="o", mfc='b', mec='b',ecolor ="blue", color="b")
+        plt.plot(epochs, fs, "b--o", label="Fidelity")
         plt.xlabel("Layers")
         plt.xticks(ticks=epochs)
         plt.ylabel("Fidelity")

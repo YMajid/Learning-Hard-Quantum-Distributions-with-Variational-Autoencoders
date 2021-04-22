@@ -16,13 +16,13 @@ from model import Model
 
 def generate_figure(states):
         for state in states:
-            tests = 2
+            tests = 1
             fs = []
             fs_std = []
-            for i in range(1,4):
+            for i in range(1,6):
                 temp_fs = []
                 for _ in range(tests):
-                    m = Model(parameters, state=state, n_qubits=18, n_layers=i, randomize_data = True, load=f"results/saved_model_{state}_L{i}")
+                    m = Model(parameters, state=state, n_qubits=18, n_layers=i, load=f"results/saved_model_{state}_L{i}")
                     temp_fs.append(m.fidelity)
                 fs.append(np.average(temp_fs))
                 fs_std.append(temp_fs)
@@ -46,18 +46,5 @@ if __name__ == '__main__':
         create_dataset(n_qubits=n)
     else:
         print("Dataset found")
-        
-    generate_figure(['easy'])
-    
-    Model(parameters, state='easy', n_qubits=n, n_layers=3)
     
     generate_figure(['easy','random','hard'])
-    
-    Model(parameters, state='easy', n_qubits=n, n_layers=6)
-    Model(parameters, state='hard', n_qubits=n, n_layers=6)
-    Model(parameters, state='random', n_qubits=n, n_layers=6)
-    
-    Model(parameters, state='easy', n_qubits=n, n_layers=7)
-    Model(parameters, state='hard', n_qubits=n, n_layers=7)
-    Model(parameters, state='random', n_qubits=n, n_layers=7)
-            

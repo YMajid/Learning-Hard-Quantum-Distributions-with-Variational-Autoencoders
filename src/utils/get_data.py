@@ -80,7 +80,7 @@ def __to_torch(batch_size, file_path, state='hard', temp_data = None):
 
     split = int(np.floor(0.9 * len(dataset)))
     train_loader = DataLoader(
-        dataset[:split], batch_size=batch_size, shuffle=True)
+        dataset[:split], batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(
         dataset[split:], batch_size=batch_size, shuffle=False)
 
