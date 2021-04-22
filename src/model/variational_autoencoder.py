@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-
+# Useful for debugging, just prints the shape of the input
 class Print(nn.Module):
     def __init__(self):
         super(Print, self).__init__()
@@ -22,6 +22,15 @@ class VariationalAutoencoder(nn.Module):
     """
 
     def __init__(self, encode, decode, logvar, mu):
+        """
+        Very standard VAE, all the heavy lifting done elsewhere
+        Args:
+            encode: encoder input from hidden_layers
+            decode: decoder layers
+            logvar: logvar layer
+            mu:mu layer
+        """
+
         super(VariationalAutoencoder, self).__init__()
         self.LReLU = nn.LeakyReLU(0.2)
         self.sigmoid = nn.Sigmoid()
@@ -30,7 +39,6 @@ class VariationalAutoencoder(nn.Module):
         self.fc_mu = mu
 
         self.encode = encode
-
         self.decode = decode
 
     def encoder(self, x):
