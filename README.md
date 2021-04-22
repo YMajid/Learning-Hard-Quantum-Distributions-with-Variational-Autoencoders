@@ -1,9 +1,44 @@
 # Learning Hard Quantum Distributions with Variational Autoencoders
 
+## Original Paper
+You can find the original paper [here](https://www.nature.com/articles/s41534-018-0077-z).
+
 ## Project Structure
-```
 
 ```
+project
+├── data
+├── param
+│   └── parameters.json
+├── results
+├── src
+│   └── model
+│       ├── hidden_layers.py
+│       ├── model.py
+│       └── variational_autoencoder.py
+│   └── utils
+│       ├── gen_data
+│       │   ├── gen_hard.py
+│       │   └── gen_random.py
+│       ├── create_dataset.py
+│       ├── get_data.py
+│       └── library.py
+└── main.py
+```
+- `/data`
+    - Where the generated data is stored
+    - Where the VAE model reads data from
+- `/param`
+    - Contains the hyperparameters file used
+- `/results`
+    - Contains loss plots, fidelity plots and saved-trained models
+- `/src`
+    - `/model`
+        - Contains architecture and code to run the model
+    - `/utils`
+        - Contains the code to generate, save and read datasets
+        - `/gen_data`
+            - Code to generate the datasets
 
 ## Contributing
 
