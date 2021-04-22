@@ -13,7 +13,7 @@ from create_dataset import create_dataset
 from model import Model
 
 if __name__ == '__main__':
-    print("Main File.")
+    print("Main File.")[]
 
     # Read parameter JSON file, convert it into a Python dictionary
     with open('param/parameters.json') as f:
@@ -30,4 +30,11 @@ if __name__ == '__main__':
         print("Dataset found")
 
     # train_loaders, test_loaders = get_data()
-    Model(parameters, state='random', n_qubits=n, n_layers=5)
+    # for i in range(1,6):
+    #     Model(parameters, state='easy', n_qubits=n, n_layers=i)
+        
+    for i in range(1,6):
+        Model(parameters, state='hard', n_qubits=n, n_layers=i)
+        
+    # for i in range(1,6):
+    #     Model(parameters, state='random', n_qubits=n, n_layers=i)
