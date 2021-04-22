@@ -11,6 +11,14 @@ from hidden_layers import get_layers
 
 class Model:
     def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8, load=None):
+        """
+        Args:
+            parameters: dict of json params
+            state: quantum state: 'easy', 'random', or 'hard
+            n_layers: number of layers in the encoder/decoder
+            n_qubits: number of qubits
+            load: optional path to load a pretrained model
+        """
 
         # Initialize class params
         self.compression = 0.5
