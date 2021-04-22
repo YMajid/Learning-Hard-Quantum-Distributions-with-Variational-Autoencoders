@@ -11,6 +11,8 @@ from hidden_layers import get_layers
 
 class Model:
     def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8, load=None):
+
+        # Initialize class params
         self.compression = 0.5
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
@@ -22,9 +24,12 @@ class Model:
         self.num_batches = int(parameters['num_batches'])
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
+
+        # Prepare model
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model(
             load=load)
 
+        # Train the model if it wasnt loaded, otherwise compute fidelity
         if load == None:
             train_losses, test_losses, train_fielities, test_fidelities = self.run_model()
             self.plot_losses(train_losses, test_losses)
@@ -37,12 +42,10 @@ class Model:
         """
         - Initializes VAE model and loads it onto the appropriate device.
         - Reads and loads the data in the form of an array of Torch DataLoaders.
-            - 0: Easy Quantum State
-            - 1: Hard Quantum State
-            - 2: Random Quantum State
         - Initializes Adam optimizer.
 
         Args:
+            - load: path to load trained model from
         Returns:
             - VAE
             - Array of train Torch Dataloaders
@@ -70,9 +73,10 @@ class Model:
 
         Args:
             - x
-            - x_reconstruction
+            - x_reconstruction (target)
             - mu
             - log_var
+            - weight
         Returns:
             - Model loss
         Raises:
@@ -96,8 +100,7 @@ class Model:
             -Fidelity for the input sample
         Raises:
         """
-        self.device = torch.device('cpu')
-        self.vae.to(self.device)
+
         x = x.dataset
         x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1)) # Converts binary string to integer
         l, u = x.min(), x.max()+1
@@ -110,7 +113,7 @@ class Model:
             re = np.random.multivariate_normal(
                 np.zeros(dim), np.eye(dim), size=int(0.375e7))
             re = self.vae.decode(torch.Tensor(re).double().to(
-                self.device)).detach().numpy()
+                self.device)).cpu().detach().numpy()
             x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
             f2 += np.histogram(x_re, density=True, bins=b)[0]
             print(f"Sampled fidelity {ns}")
@@ -131,11 +134,11 @@ class Model:
             - epoch: Number of current epoch to print
             - loader: Torch DataLoader for a quantum state
         Returns:
+            - epoch loss
         Raises:
         """
         self.vae.train()
         epoch_loss = 0
-        fidelity = 0
 
         for i, data in enumerate(loader):
 
@@ -157,11 +160,10 @@ class Model:
 
         if (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
-                  '\tLoss: {:.4f}'.format(epoch_loss) +
-                  '\tFidelity: {:.4f}'.format(fidelity)
+                  '\tLoss: {:.4f}'.format(epoch_loss)
                   )
 
-        return epoch_loss, fidelity
+        return epoch_loss
 
     def test(self, epoch, loader):
         """
@@ -171,11 +173,12 @@ class Model:
             - epoch: Number of current epoch to print
             - loader: Torch DataLoader for a quantum state
         Returns:
+            - epoch loss
         Raises:
         """
         self.vae.eval()
         epoch_loss = 0
-        fidelity = 0
+
 
         with torch.no_grad():
             for i, data in enumerate(loader):
@@ -189,7 +192,7 @@ class Model:
                     data, reconstruction_data, mu, logvar)
                 epoch_loss += loss.item() / (data.size(0) * self.num_batches)
 
-        return epoch_loss, fidelity
+        return epoch_loss
 
     def run_model(self):
         """
@@ -197,37 +200,33 @@ class Model:
             - state: Quantum state the model will be trained on
                 - Options include: 'easy', 'hard', 'random'
         Returns:
+            - test and training loss
         Raises:
         """
 
         train_loader, test_loader = self.train_loaders, self.test_loaders
         train_losses, test_losses = [], []
-        train_fidelities, test_fidelities = [], []
 
         print("Beginning Training:")
         for e in range(0, self.epochs):
-            train_loss, train_fidelity = self.train(e, train_loader)
-            test_loss, test_fidelity = self.test(e, train_loader)
+            train_loss = self.train(e, train_loader)
+            test_loss = self.test(e, train_loader)
             train_losses.append(train_loss)
-            train_fidelities.append(train_fidelity)
             test_losses.append(test_loss)
-            test_fidelities.append(test_fidelity)
 
         print(
-            f"Final train loss: {train_loss}\tFinal test loss: {test_loss}\tFinal Fidelity: {test_fidelity}")
+            f"Final train loss: {train_loss}\tFinal test loss: {test_loss}")
 
         torch.save(self.vae.state_dict(),
                    f"results/saved_model_{self.state}_L{self.n_layers}")
 
-        return train_losses, test_losses, train_fidelities, test_fidelities
+        return train_losses, test_losses
 
     def plot_losses(self, train_losses, test_losses):
         """
         Args:
             - train_losses: list of training losses from run_model
             - test_losses: list of testing losses from run_model
-            - state: Quantum state the model was trained on
-                - Options include: 'easy', 'hard', 'random'
         Returns:
         Raises:
         """
