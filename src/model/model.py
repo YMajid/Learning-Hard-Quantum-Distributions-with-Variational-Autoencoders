@@ -6,17 +6,22 @@ from variational_autoencoder import VariationalAutoencoder
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import sys
 from hidden_layers import get_layers
 
+sys.path.append("src/utils/gen_data")
+
+from create_dataset import create_temp_data
 
 class Model:
-    def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8, load=None):
+    def __init__(self, parameters, state='hard', n_layers=3, randomize_data = False, n_qubits=8, load=None):
         self.compression = 0.5
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
         self.display_epochs = int(parameters['display_epoch'])
         self.learning_rate = parameters['learning_rate']
         self.state = state
+        self.randomize_data = randomize_data
         self.n_layers = n_layers
         self.n_qubits = n_qubits
         self.num_batches = int(parameters['num_batches'])
@@ -54,8 +59,9 @@ class Model:
         VAE_layers = get_layers(input_size, self.n_layers, self.compression)
         vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get(
             'decoder'), VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
+        temp_data = create_temp_data(self.state, n_qubits = 18) if self.randomize_data else None
         train_loaders, test_loaders = get_data(
-            self.batch_size, 'data/', state=self.state)
+            self.batch_size, 'data/', state=self.state, temp_data = temp_data)
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
 
         if not load == None:
@@ -116,7 +122,7 @@ class Model:
             print(f"Sampled fidelity {ns}")
             ns += 1
 
-        out = np.sqrt(np.abs(np.matmul(f1, f2))).sum()
+        out = np.sum(np.sqrt(np.multiply(f1,f2)))
         print(f"Fidelity: {out}")
         del re, x_re, f1, f2, x
         torch.cuda.empty_cache()
@@ -247,7 +253,7 @@ class Model:
         plt.clf()
         print(f'results/loss-{figure_num}.png')
 
-    def plot_fidelities(self, fs, state=None):
+    def plot_fidelities(self, fs, fs_std , state=None):
         """
         Args:
             - fs - A list of Fidelities from each model
@@ -259,15 +265,15 @@ class Model:
 
         if state == None:
             state = self.state
-
+            
         epochs = np.arange(1, len(fs)+1, 1)
-        plt.plot(epochs, fs, "b--o", label="Fidelity")
+        plt.errorbar(epochs, fs, yerr=fs_std, label="Fidelity", linestyle='--', marker ="o", mfc='b', mec='b',ecolor ="blue", color="b")
         plt.xlabel("Layers")
         plt.xticks(ticks=epochs)
         plt.ylabel("Fidelity")
         plt.title("VAE Fidelities for the " + str(state) +
                   " state")
-        plt.xlim(epochs.min(), epochs.max())
+        plt.xlim(epochs.min()-1, epochs.max()+1)
         figure_num = 1
         while os.path.exists(f'results/fidelities-{state}-{figure_num}.png'):
             figure_num += 1

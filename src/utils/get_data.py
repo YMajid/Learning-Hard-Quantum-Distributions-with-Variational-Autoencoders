@@ -4,7 +4,7 @@ from library import Library
 from torch.utils.data import SubsetRandomSampler, DataLoader, TensorDataset
 
 
-def get_data(batch_size=100, file_path='data/l2n4_bin/', state='hard'):
+def get_data(batch_size=100, file_path='data/l2n4_bin/', state='hard', temp_data = None):
     """
     Args:
         - batch_size: Size of batches
@@ -15,7 +15,7 @@ def get_data(batch_size=100, file_path='data/l2n4_bin/', state='hard'):
     Raises:
     """
     train_loaders, test_loaders = __to_torch(
-        batch_size, file_path, state=state)
+        batch_size, file_path, state=state, temp_data = temp_data)
 
     return train_loaders, test_loaders
 
@@ -59,7 +59,7 @@ def __get_samplers(dataset, percent_test=0.3):
     return train_sampler, test_sampler
 
 
-def __to_torch(batch_size, file_path, state='hard'):
+def __to_torch(batch_size, file_path, state='hard', temp_data = None):
     """
     Args:
         - batch_size: Size of batches
@@ -69,8 +69,14 @@ def __to_torch(batch_size, file_path, state='hard'):
         - test_loaders: Array of Torch DataLoaders representing quantum states for testin
     Raises:
     """
-    raw = __get_raw_data(file_path, state=state)
-    dataset = raw.astype(float)
+    dataset = None
+
+    if temp_data is None:
+        raw = __get_raw_data(file_path, state=state)
+        dataset = raw.astype(float)
+    
+    else: 
+        dataset = temp_data
 
     split = int(np.floor(0.9 * len(dataset)))
     train_loader = DataLoader(

@@ -67,3 +67,42 @@ def create_dataset(n_qubits=8, L=2, t_i=0.0, t_f=5.01):
     library.writer(hard_d, 'hard_dataset')
     del hard_d, hard
     print("Finished generating hard dataset.")
+
+def create_temp_data(state, n_qubits=8, L=2, t_i=0.0, t_f=5.01):
+    """
+    - Generates temp easy, hard and random datasets and saves them as .npz files
+
+    Args:
+        - state: State
+        - n_qubits: Number of qubits
+        - L:
+        - t_i: Initial time
+        - t_f: Final time
+    Returns:
+    Raises:
+    """
+    
+    if state == 'easy':
+        easy = RandomStateGenerator()
+        easy_d = easy.make_dset_easy(n_qubits)
+        easy_d = sample(easy_d, n_qubits)
+        del easy
+        print("Finished generating temp easy dataset.")
+        return easy_d
+
+    elif state == 'random':
+        rand = RandomStateGenerator()
+        rand_d = rand.make_dset_hard(n_qubits)  # 18qubits is too big to handle
+        rand_d = sample(rand_d, n_qubits)
+        del rand
+        print("Finished generating temp random dataset.")
+        return rand_d
+
+    elif state == 'hard':
+        # 3,4 is the correct inputs for 18 qubit state
+        hard = HardStateGenerator(3, 4)
+        hard_d = hard.get_hard_distribution(mode="full")
+        hard_d = sample(hard_d, n_qubits)
+        del hard
+        print("Finished generating temp hard dataset.")
+        return hard_d

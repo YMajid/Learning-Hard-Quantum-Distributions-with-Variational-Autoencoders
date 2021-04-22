@@ -3,6 +3,8 @@ import sys
 import json
 import argparse
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 sys.path.append('src/model')
 sys.path.append('src/utils')
@@ -11,6 +13,22 @@ sys.path.append("src/utils/gen_data")
 from create_dataset import create_dataset
 
 from model import Model
+
+def generate_figure(states):
+        for state in states:
+            tests = 2
+            fs = []
+            fs_std = []
+            for i in range(1,4):
+                temp_fs = []
+                for _ in range(tests):
+                    m = Model(parameters, state=state, n_qubits=18, n_layers=i, randomize_data = True, load=f"results/saved_model_{state}_L{i}")
+                    temp_fs.append(m.fidelity)
+                fs.append(np.average(temp_fs))
+                fs_std.append(temp_fs)
+                
+            fs_std = np.std(fs_std)
+            m.plot_fidelities(fs, fs_std, state=state)
 
 if __name__ == '__main__':
     print("Main File.")
@@ -28,16 +46,18 @@ if __name__ == '__main__':
         create_dataset(n_qubits=n)
     else:
         print("Dataset found")
-
-    # Generate, train, and save each model
-    # for state in ['easy', 'random', 'hard']:
-    #     for i in range(1,6):
-    #         m = Model(parameters, state=state, n_qubits=n, n_layers=i)
-
-    # Load and plot fidelities
-    for state in ['easy', 'random', 'hard']:
-        fs = []
-        for i in range(1,6):
-            m = Model(parameters, state=state, n_qubits=n, n_layers=i, load=f"results/saved_model_{state}_L{i}")
-            fs.append(m.fidelity)
-        m.plot_fidelities(fs, state=state)
+        
+    generate_figure(['easy'])
+    
+    Model(parameters, state='easy', n_qubits=n, n_layers=3)
+    
+    generate_figure(['easy','random','hard'])
+    
+    Model(parameters, state='easy', n_qubits=n, n_layers=6)
+    Model(parameters, state='hard', n_qubits=n, n_layers=6)
+    Model(parameters, state='random', n_qubits=n, n_layers=6)
+    
+    Model(parameters, state='easy', n_qubits=n, n_layers=7)
+    Model(parameters, state='hard', n_qubits=n, n_layers=7)
+    Model(parameters, state='random', n_qubits=n, n_layers=7)
+            
