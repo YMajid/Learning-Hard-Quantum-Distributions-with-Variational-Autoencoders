@@ -42,6 +42,7 @@ class Model:
         if load == None:
             train_losses, test_losses = self.run_model()
             self.plot_losses(train_losses, test_losses)
+            self.fidelity = self.get_fidelity(self.train_loaders)
         else:
             self.fidelity = self.get_fidelity(self.train_loaders)
 
