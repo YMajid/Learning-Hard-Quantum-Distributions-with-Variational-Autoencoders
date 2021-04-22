@@ -97,7 +97,7 @@ class Model:
         Raises:
         """
         x = x.dataset
-        x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))
+        x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1)) # Converts binary string to integer
         l, u = x.min(), x.max()+1
         f1, b = np.histogram(x, density=True, bins=np.arange(l, u, 1))
 
@@ -115,8 +115,9 @@ class Model:
             ns += 1
 
         out = np.sqrt(np.abs(np.matmul(f1, f2))).sum()
-        print(out)
-        print(out / x.shape[0])
+        print(f"Fidelity: {out}")
+        del re, x_re, f1, f2, x
+        torch.cuda.empty_cache()
 
         return out
 
