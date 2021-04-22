@@ -60,7 +60,6 @@ optional arguments:
   -h, --help            show this help message and exit
   -v N                  Verbosity (0 = all information, else = nothing).
   -n N                  Number of qubits.
-  --result result/      Directory for output files.
   --pretrained False    Load pretrained model.
   --param param/param.json
                         Parameter file path.

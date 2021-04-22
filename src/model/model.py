@@ -10,7 +10,7 @@ from hidden_layers import get_layers
 
 
 class Model:
-    def __init__(self, parameters, state='hard', n_layers=3, n_qubits=8, load=None):
+    def __init__(self, parameters, verbosity=0, state='hard', n_layers=3, n_qubits=8, load=None):
         """
         Args:
             parameters: dict of json params
@@ -32,6 +32,7 @@ class Model:
         self.num_batches = int(parameters['num_batches'])
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
+        self.verbosity = verbosity
 
         # Prepare model
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model(
@@ -173,7 +174,7 @@ class Model:
                 print("Done batch: " + str(i) +
                       "\tCurr Loss: " + str(epoch_loss))
 
-        if (epoch + 1) % self.display_epochs == 0:
+        if self.verbosity == 0 or self.verbosity ==1 and (epoch + 1) % self.display_epochs == 0:
             print('Epoch [{}/{}]'.format(epoch + 1, self.epochs) +
                   '\tLoss: {:.4f}'.format(epoch_loss)
                   )
