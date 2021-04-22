@@ -29,6 +29,7 @@ if __name__ == '__main__':
     else:
         print("Dataset found")
 
+<<<<<<< HEAD
     # Generate, train, and save each model
     for state in ['easy', 'random', 'hard']:
         for i in range(1,6):
@@ -42,4 +43,15 @@ if __name__ == '__main__':
             fs.append(m.fidelity)
         m.plot_fidelities(fs)
 
+=======
+    # Run model for easy, hard and random states
+    for i in range(1,6):
+        Model(parameters, state='easy', n_qubits=n, n_layers=i)
+
+    for i in range(1,6):
+        Model(parameters, state='hard', n_qubits=n, n_layers=i)
+
+    for i in range(1,6):
+        Model(parameters, state='random', n_qubits=n, n_layers=i)
+>>>>>>> 0893bf723ace6af99ee29c446642cb23cdd46886
 
