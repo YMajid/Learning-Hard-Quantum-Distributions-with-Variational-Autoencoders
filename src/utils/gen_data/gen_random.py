@@ -1,5 +1,6 @@
 import numpy as np
 
+# Code for generating the random hard state, adapted from original authors
 
 class RandomStateGenerator:
     @staticmethod
