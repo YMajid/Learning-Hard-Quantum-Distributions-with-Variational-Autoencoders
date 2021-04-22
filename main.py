@@ -28,7 +28,7 @@ if __name__ == '__main__':
         f.close()
 
     # Create dataset if not available locally (only takes a minute or three)
-    if not os.path.exists('data/easy_dataset.npz'):
+    if not os.path.exists('data/easy_dataset.npz') or not os.path.exists('data/hard_dataset.npz') or not os.path.exists('data/random_dataset.npz'):
         print("Creating dataset, please wait one moment.")
         create_dataset(n_qubits=args.n)
     else:
