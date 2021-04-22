@@ -101,25 +101,32 @@ class Model:
         Raises:
         """
 
+        # Get whole dataset, convert to integer, get bounds, compute (true) probability density
         x = x.dataset
         x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1)) # Converts binary string to integer
         l, u = x.min(), x.max()+1
         f1, b = np.histogram(x, density=True, bins=np.arange(l, u, 1))
 
+        # Initialize for getting reconstructed density
         f2 = np.zeros(f1.shape)
         ns = 0
         dim = int(self.n_qubits * self.compression)
         while ns < 10:
+            # Get samples, decode them, convert to int, and add to hist count
             re = np.random.multivariate_normal(
                 np.zeros(dim), np.eye(dim), size=int(0.375e7))
             re = self.vae.decode(torch.Tensor(re).double().to(
                 self.device)).cpu().detach().numpy()
             x_re = re.dot(1 << np.arange(re.shape[-1] - 1, -1, -1))
-            f2 += np.histogram(x_re, density=True, bins=b)[0]
+            f2 += np.histogram(x_re, bins=b)[0]
             print(f"Sampled fidelity {ns}")
             ns += 1
 
-        out = np.sqrt(np.abs(np.matmul(f1, f2))).sum()
+        # Normalize to density (taken from np.histogram source)
+        db = np.array(np.diff(b), float)
+        f2 = f2 / db / f2.sum()
+
+        out = np.sum(np.sqrt(np.multiply(f1,f2)))
         print(f"Fidelity: {out}")
         del re, x_re, f1, f2, x
         torch.cuda.empty_cache()
