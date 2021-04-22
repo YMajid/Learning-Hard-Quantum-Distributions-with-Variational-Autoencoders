@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', type=int, default=0, metavar='N', help='Verbosity (0 = all information, else = nothing).')
     parser.add_argument('-n', type=int, default=18, metavar='N', help='Number of qubits.')
     parser.add_argument('--result', type=str, default='result/', metavar='result/', help='Directory for output files.')
-    parser.add_argument('--pretrained', type=bool, default=False, metavar='False', help='Load pretrained model.')
+    parser.add_argument('--pretrained', type=str, default=False, metavar='False', help='Load pretrained model.')
     parser.add_argument('--param', type=str, default='param/parameters.json', metavar='param/param.json',
                         help='Parameter file path.')
     args = parser.parse_args()
@@ -28,20 +28,18 @@ if __name__ == '__main__':
         f.close()
 
     # Create dataset if not available locally (only takes a minute or three)
-    if not args.pretrained or not os.path.exists('data/easy_dataset.npz'):
+    if not os.path.exists('data/easy_dataset.npz'):
         print("Creating dataset, please wait one moment.")
         create_dataset(n_qubits=args.n)
     else:
         print("Dataset found.")
-        
-    print(args.pretrained)
 
     # Load and plot fidelities or training
     for state in ['easy', 'random', 'hard']:
         fs = []
         for i in range(1, 6):
             m = None
-            if args.pretrained:
+            if args.pretrained == 'True':
                 m = Model(parameters, verbosity = args.v, state=state, n_qubits=args.n, n_layers=i, load=f"results/saved_model_{state}_L{i}")
             else:
                 m = Model(parameters, verbosity = args.v, state=state, n_qubits=args.n, n_layers=i)
