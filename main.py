@@ -30,9 +30,9 @@ if __name__ == '__main__':
         print("Dataset found")
 
     # Generate, train, and save each model
-    for state in ['easy', 'random', 'hard']:
-        for i in range(1,6):
-            m = Model(parameters, state=state, n_qubits=n, n_layers=i)
+    # for state in ['easy', 'random', 'hard']:
+    #     for i in range(1,6):
+    #         m = Model(parameters, state=state, n_qubits=n, n_layers=i)
 
     # Load and plot fidelities
     for state in ['easy', 'random', 'hard']:
@@ -40,4 +40,4 @@ if __name__ == '__main__':
         for i in range(1,6):
             m = Model(parameters, state=state, n_qubits=n, n_layers=i, load=f"results/saved_model_{state}_L{i}")
             fs.append(m.fidelity)
-        m.plot_fidelities(fs)
+        m.plot_fidelities(fs, state=state)

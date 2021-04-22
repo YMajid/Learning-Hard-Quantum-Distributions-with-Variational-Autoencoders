@@ -244,26 +244,29 @@ class Model:
         plt.clf()
         print(f'results/loss-{figure_num}.png')
 
-    def plot_fidelities(self, fs):
+    def plot_fidelities(self, fs, state=None):
         """
         Args:
-            - train_losses: list of training losses from run_model
-            - test_losses: list of testing losses from run_model
+            - fs - A list of Fidelities from each model
             - state: Quantum state the model was trained on
                 - Options include: 'easy', 'hard', 'random'
         Returns:
         Raises:
         """
+
+        if state == None:
+            state = self.state
+
         epochs = np.arange(0, len(fs), 1)
         plt.plot(epochs, fs, "b--o", label="Fidelity")
         plt.xlabel("Epoch")
         plt.ylabel("Fidelity")
-        plt.title("VAE Training Fidelities for the " + str(self.state) +
-                  " state with " + str(self.n_layers) + "layers")
+        plt.title("VAE Fidelities for the " + str(state) +
+                  " state")
         plt.xlim(0, epochs.max())
         figure_num = 1
-        while os.path.exists(f'results/fidelities-{self.state}-{figure_num}.png'):
+        while os.path.exists(f'results/fidelities-{state}-{figure_num}.png'):
             figure_num += 1
-        plt.savefig(f'results/fidelities-{self.state}-{figure_num}.png')
+        plt.savefig(f'results/fidelities-{state}-{figure_num}.png')
         plt.clf()
-        print(f'results/fidelities-{self.state}-{figure_num}.png')
+        print(f'results/fidelities-{state}-{figure_num}.png')
