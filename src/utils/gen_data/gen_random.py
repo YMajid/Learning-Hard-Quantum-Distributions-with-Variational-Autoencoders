@@ -1,7 +1,7 @@
 import numpy as np
 
-# Code for generating the random hard state, adapted from original authors
 
+# Code for generating the random hard state, adapted from original authors
 class RandomStateGenerator:
     # Given by authors
     @staticmethod
@@ -21,9 +21,9 @@ class RandomStateGenerator:
         u = self.gen_unitary(1)
         prod = (u * np.array([1, 0]).T).sum(1)
 
-        for i in range(n_qubits-1):
+        for i in range(n_qubits - 1):
             u = self.gen_unitary(1)
-            v = (u*np.array([1,0]).T).sum(1)
+            v = (u * np.array([1, 0]).T).sum(1)
 
             prod = np.kron(prod, v)
 
@@ -34,17 +34,16 @@ class RandomStateGenerator:
     def make_dset_hard(self, n_qubits):
         # sample from 2^n dim complex unit sphere
         # via sampling 2^2n real unit sphere and then just making it complex
-        n = n_qubits+1 # or any positive integer
-        x = np.random.normal(size=(1, 2**n))
+        n = n_qubits + 1  # or any positive integer
+        x = np.random.normal(size=(1, 2 ** n))
         x /= np.linalg.norm(x, axis=1)[:, np.newaxis]
-        x = x.reshape(2**n_qubits, 2)
+        x = x.reshape(2 ** n_qubits, 2)
         y = np.empty(x.shape[0], dtype=complex)
-        y.real=x[:,0]
-        y.imag=x[:,1]
+        y.real = x[:, 0]
+        y.imag = x[:, 1]
         del x
 
-        y /= np.linalg.norm(y) # normalize
-        out = (y * np.conj(y).T).real # still a complex dtype so take .real
+        y /= np.linalg.norm(y)  # normalize
+        out = (y * np.conj(y).T).real  # still a complex dtype so take .real
 
         return out
-

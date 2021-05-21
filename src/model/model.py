@@ -19,8 +19,7 @@ class Model:
             n_qubits: number of qubits
             load: optional path to load a pretrained model
         """
-
-        # Initialize class params
+        # Initialize class parameteres
         self.compression = 0.5
         self.epochs = int(parameters['epochs'])
         self.batch_size = int(parameters['batch_size'])
@@ -38,34 +37,31 @@ class Model:
         self.vae, self.train_loaders, self.test_loaders, self.optimizer = self.prepare_model(
             load=load)
 
-        # Train the model if it wasnt loaded, otherwise compute fidelity
+        # Train the model if it wasn't loaded, and compute fidelity
         if load == None:
             train_losses, test_losses = self.run_model()
             self.plot_losses(train_losses, test_losses)
-            self.fidelity = self.get_fidelity(self.train_loaders)
-        else:
-            self.fidelity = self.get_fidelity(self.train_loaders)
-
+        self.fidelity = self.get_fidelity(self.train_loaders)
 
     def prepare_model(self, load=None):
         """
-        - Initializes VAE model and loads it onto the appropriate device.
-        - Reads and loads the data in the form of an array of Torch DataLoaders.
-        - Initializes Adam optimizer.
+        Initializes VAE model and loads it onto the appropriate device.
+        Reads and loads the data in the form of an array of Torch DataLoaders.
+        Initializes Adam optimizer.
 
         Args:
-            - load: path to load trained model from
+            load: path to load trained model from
         Returns:
-            - VAE
-            - Array of train Torch Dataloaders
-            - Array of test Torch Dataloaders
-            - Adam optimizer
+            VAE
+            Array of train Torch Dataloaders
+            Array of test Torch Dataloaders
+            Adam optimizer
         Raises:
         """
         input_size = self.n_qubits
         VAE_layers = get_layers(input_size, self.n_layers, self.compression)
         vae = VariationalAutoencoder(VAE_layers.get('encoder'), VAE_layers.get(
-            'decoder'), VAE_layers.get('logvar'),  VAE_layers.get('mu')).double().to(self.device)
+            'decoder'), VAE_layers.get('logvar'), VAE_layers.get('mu')).double().to(self.device)
         train_loaders, test_loaders = get_data(
             self.batch_size, 'data/', state=self.state)
         optimizer = optim.Adam(vae.parameters(), lr=self.learning_rate)
@@ -78,22 +74,22 @@ class Model:
 
     def loss_function(self, x, x_reconstruction, mu, log_var, weight=1):
         """
-        - Returns the loss for the model based on the reconstruction likelihood and KL divergence
+        Returns the loss for the model based on the reconstruction likelihood and KL divergence
 
         Args:
-            - x
-            - x_reconstruction (target)
-            - mu
-            - log_var
-            - weight
+            x: Input data
+            x_reconstruction: Reconstructed data
+            mu:
+            log_var:
+            weight:
         Returns:
-            - Model loss
+            loss:
         Raises:
         """
         reconstruction_likelihood = F.binary_cross_entropy(
             x_reconstruction, x, reduction='sum')
         kl_divergence = -0.5 * \
-            torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+                        torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
         loss = reconstruction_likelihood + kl_divergence * weight
 
@@ -101,19 +97,19 @@ class Model:
 
     def get_fidelity(self, x):
         """
-        - Calculates the reconstruction fidelity.
+        Calculates the reconstruction fidelity.
         
         Args:
-            -x
+            x: Input data
         Returns:
-            -Fidelity for the input sample
+            out: Fidelity for the input sample
         Raises:
         """
 
         # Get whole dataset, convert to integer, get bounds, compute (true) probability density
         x = x.dataset
-        x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1)) # Converts binary string to integer
-        l, u = x.min(), x.max()+1
+        x = x.dot(1 << np.arange(x.shape[-1] - 1, -1, -1))  # Converts binary string to integer
+        l, u = x.min(), x.max() + 1
         f1, b = np.histogram(x, density=True, bins=np.arange(l, u, 1))
 
         # Initialize for getting reconstructed density
@@ -135,7 +131,7 @@ class Model:
         db = np.array(np.diff(b), float)
         f2 = f2 / db / f2.sum()
 
-        out = np.sum(np.sqrt(np.multiply(f1,f2)))
+        out = np.sum(np.sqrt(np.multiply(f1, f2)))
         print(f"Fidelity: {out}")
         del re, x_re, f1, f2, x
         torch.cuda.empty_cache()
@@ -144,13 +140,13 @@ class Model:
 
     def train(self, epoch, loader):
         """
-        - Trains the VAE model
+        Trains the VAE model
 
         Args:
-            - epoch: Number of current epoch to print
-            - loader: Torch DataLoader for a quantum state
+            epoch: Number of current epoch to print
+            loader: Torch DataLoader for a quantum state
         Returns:
-            - epoch loss
+            epoch_loss: Loss for the epoch
         Raises:
         """
         self.vae.train()
@@ -165,12 +161,13 @@ class Model:
             self.optimizer.zero_grad()
             reconstruction_data, mu, log_var = self.vae(data)
             loss = self.loss_function(
-                data, reconstruction_data, mu, log_var, weight=0.85*(epoch/self.epochs))
+                data, reconstruction_data, mu, log_var, weight=0.85 * (epoch / self.epochs))
             loss.backward()
             epoch_loss += loss.item() / (data.size(0) * self.num_batches)
             self.optimizer.step()
 
-            if (self.verbosity == 0 or (self.verbosity == 1 and (epoch + 1) % self.display_epochs == 0)) and i % self.batch_size == 0:
+            if (self.verbosity == 0 or (
+                    self.verbosity == 1 and (epoch + 1) % self.display_epochs == 0)) and i % self.batch_size == 0:
                 print("Done batch: " + str(i) +
                       "\tCurr Loss: " + str(epoch_loss))
 
@@ -183,18 +180,17 @@ class Model:
 
     def test(self, epoch, loader):
         """
-        - Tests VAE model
+        Tests VAE model
 
         Args:
-            - epoch: Number of current epoch to print
-            - loader: Torch DataLoader for a quantum state
+            epoch: Number of current epoch to print
+            loader: Torch DataLoader for a quantum state
         Returns:
-            - epoch loss
+            epoch_loss: Loss for the epoch
         Raises:
         """
         self.vae.eval()
         epoch_loss = 0
-
 
         with torch.no_grad():
             for i, data in enumerate(loader):
@@ -213,10 +209,10 @@ class Model:
     def run_model(self):
         """
         Args:
-            - state: Quantum state the model will be trained on
-                - Options include: 'easy', 'hard', 'random'
+            state: Quantum state the model will be trained on
+                Options include: 'easy', 'hard', 'random'
         Returns:
-            - test and training loss
+            test and training loss
         Raises:
         """
 
@@ -241,8 +237,8 @@ class Model:
     def plot_losses(self, train_losses, test_losses):
         """
         Args:
-            - train_losses: list of training losses from run_model
-            - test_losses: list of testing losses from run_model
+            train_losses: list of training losses from run_model
+            test_losses: list of testing losses from run_model
         Returns:
         Raises:
         """
@@ -265,9 +261,9 @@ class Model:
     def plot_fidelities(self, fs, state=None):
         """
         Args:
-            - fs - A list of Fidelities from each model
-            - state: Quantum state the model was trained on
-                - Options include: 'easy', 'hard', 'random'
+            fs: A list of Fidelities from each model
+            state: Quantum state the model was trained on
+                Options include: 'easy', 'hard', 'random'
         Returns:
         Raises:
         """
@@ -275,7 +271,7 @@ class Model:
         if state == None:
             state = self.state
 
-        epochs = np.arange(1, len(fs)+1, 1)
+        epochs = np.arange(1, len(fs) + 1, 1)
         plt.plot(epochs, fs, "b--o", label="Fidelity")
         plt.xlabel("Layers")
         plt.xticks(ticks=epochs)

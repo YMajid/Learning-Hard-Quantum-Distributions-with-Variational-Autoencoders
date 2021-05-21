@@ -1,12 +1,13 @@
 import numpy as np
 import itertools
 
+
 # Code for generating the hard state, adapted from original authors
 class HardStateGenerator:
     def __init__(self, n, L):
         """
         Args:
-            n, L: somehow combined to get number of qubits
+            n, L: somehow combined to get number of qubits ¯\_(ツ)_/¯
         """
         self.n = n
         self.L = L
@@ -56,7 +57,7 @@ class HardStateGenerator:
                 permutation_vector
             )
             binary_permutation_matrices_flat[s,
-                                             :] = binary_permutation_matrix_flat
+            :] = binary_permutation_matrix_flat
         return binary_permutation_matrices_flat
 
     def get_hard_distribution(self):
@@ -71,6 +72,6 @@ class HardStateGenerator:
             z = np.power(omega, y)
             q = np.sum(np.prod(np.power(z, h), 1))
             P.append(np.real(np.conj(q) * q) / (
-                self.L ** (self.n ** 2) * (np.math.factorial(self.n) - 1)
+                    self.L ** (self.n ** 2) * (np.math.factorial(self.n) - 1)
             ))
         return np.asarray(P)

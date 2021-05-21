@@ -10,15 +10,15 @@ sys.path.insert(-1, "gen_data")
 
 def sample(pdist, n_qubits, N=50000000):
     """
-    - Samples binary strings according to a probability distribution
+    Samples binary strings according to a probability distribution
 
     Args:
         pdist: the probability distribution
         n_qubits: number of qubits
         N: number of samples to draw (default is 1000 samples for 50,000 batches worth)
-
-    Returns: array(N x n_qubits) of binary strings
-
+    Returns:
+        out: array (N x n_qubits) of binary strings
+    Raises:
     """
     bin_nums = [n for n in itertools.product(
         np.array([0, 1]), repeat=n_qubits)]
@@ -32,11 +32,10 @@ def sample(pdist, n_qubits, N=50000000):
 
 def create_dataset(n_qubits=8):
     """
-    - Generates easy, hard and random datasets and saves them as .npz files
+    Generates easy, hard and random datasets and saves them as .npz files
 
     Args:
-        - n_qubits: Number of qubits
-
+        n_qubits: Number of qubits
     Returns:
     Raises:
     """

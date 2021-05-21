@@ -1,9 +1,23 @@
 import torch.nn as nn
 
 
-# function to get the architecture of the VAE based on compression (the variable we're changing throughout the analysis)
+class Print(nn.Module):
+    """
+    Used to print the shape of the data inside of nn.Sequential
+    """
+
+    def __init__(self):
+        super(Print, self).__init__()
+
+    def forward(self, x):
+        print(x.shape)
+        return x
+
+
 def get_layers(input_size, n_layers, compression):
     """
+    Retrieves the architecture of the VAE based on compression
+
     Args:
         input_size: size of input to first layer
         n_layers: number of desired layers
@@ -24,14 +38,12 @@ def get_layers(input_size, n_layers, compression):
     if n_layers == 1:
         # Desired structure for 1 total layer in the encoder
         encoder = nn.Sequential(nn.Sigmoid())
-
     elif n_layers == 2:
         # Desired structure for 2 total layers in the encoder
         encoder = nn.Sequential(
             nn.Linear(input_size, input_size - reduction),
             nn.Sigmoid()
         )
-
     elif n_layers == 3:
         # Desired structure for 3 total layers in the encoder
         encoder = nn.Sequential(
@@ -41,7 +53,6 @@ def get_layers(input_size, n_layers, compression):
                       input_size - reduction * 2),
             nn.Sigmoid()
         )
-
     elif n_layers == 4:
         # Desired structure for 4 total layers in the encoder
         encoder = nn.Sequential(
@@ -54,7 +65,6 @@ def get_layers(input_size, n_layers, compression):
                       input_size - reduction * 3),
             nn.Sigmoid()
         )
-
     elif n_layers == 5:
         # Desired structure for 5 total layers in the encoder
         encoder = nn.Sequential(
@@ -70,7 +80,6 @@ def get_layers(input_size, n_layers, compression):
                       input_size - reduction * 4),
             nn.Sigmoid()
         )
-
     elif n_layers == 6:
         # Desired structure for 6 total layers in the encoder
         encoder = nn.Sequential(
@@ -89,7 +98,6 @@ def get_layers(input_size, n_layers, compression):
                       input_size - reduction * 5),
             nn.Sigmoid()
         )
-
     elif n_layers == 7:
         # Desired structure for 7 total layers in the encoder
         encoder = nn.Sequential(
@@ -136,7 +144,6 @@ def get_layers(input_size, n_layers, compression):
             nn.Linear(input_size - reduction * 1, input_size),
             nn.Sigmoid()
         )
-
     elif (n_layers == 6):
         # Desired structure for 6 total layers in the decoder
         decoder = nn.Sequential(
@@ -157,7 +164,6 @@ def get_layers(input_size, n_layers, compression):
             nn.Linear(input_size - reduction * 1, input_size),
             nn.Sigmoid()
         )
-
     elif (n_layers == 5):
         # Desired structure for 5 total layers in the decoder
         decoder = nn.Sequential(
@@ -175,7 +181,6 @@ def get_layers(input_size, n_layers, compression):
             nn.Linear(input_size - reduction * 1, input_size),
             nn.Sigmoid()
         )
-
     elif n_layers == 4:
         # Desired structure for 4 total layers in the decoder
         decoder = nn.Sequential(
@@ -190,7 +195,6 @@ def get_layers(input_size, n_layers, compression):
             nn.Linear(input_size - reduction * 1, input_size),
             nn.Sigmoid()
         )
-
     elif n_layers == 3:
         # Desired structure for 3 total layers in the decoder
         decoder = nn.Sequential(
@@ -202,7 +206,6 @@ def get_layers(input_size, n_layers, compression):
             nn.Linear(input_size - reduction * 1, input_size),
             nn.Sigmoid()
         )
-
     elif n_layers == 2:
         # Desired structure for 2 total layers in the decoder
         decoder = nn.Sequential(
@@ -211,7 +214,6 @@ def get_layers(input_size, n_layers, compression):
             nn.Linear(input_size - reduction * 1, input_size),
             nn.Sigmoid()
         )
-
     elif n_layers == 1:
         # Desired structure for 1 total layer in the decoder
         decoder = nn.Sequential(

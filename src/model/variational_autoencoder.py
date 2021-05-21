@@ -1,22 +1,13 @@
 import torch
 import torch.nn as nn
 
-# Useful for debugging, just prints the shape of the input
-class Print(nn.Module):
-    def __init__(self):
-        super(Print, self).__init__()
-
-    def forward(self, x):
-        print(x.shape)
-        return x
-
 
 class VariationalAutoencoder(nn.Module):
     """
     Variational Autoencoder class.
 
     Architecture:
-        - 6 Fully connected layers
+        - x Fully connected layers
         - Sigmoid activation function
         - LeakyReLU activation function with slope of -0.2
     """

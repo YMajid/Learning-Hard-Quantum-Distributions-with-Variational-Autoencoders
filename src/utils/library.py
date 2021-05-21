@@ -14,8 +14,8 @@ class Library:
     def writer(self, data, file_name):
         """
         Args:
-            - data: Dataset to be saved
-            - file_name: Location where dataset will be saved to
+            data: Dataset to be saved
+            file_name: Location where dataset will be saved to
         Returns:
         Raises:
         """
@@ -31,9 +31,9 @@ class Library:
     def reader(self, file_name):
         """
         Args:
-            - file_name: Name of file to be read
+            file_name: Name of file to be read
         Returns:
-            - Returns Numpy array of the data
+            Returns Numpy array of the data
         Raises:
         """
         input_location = self.path + file_name + '.npz'

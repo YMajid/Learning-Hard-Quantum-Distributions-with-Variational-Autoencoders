@@ -1,4 +1,3 @@
-import torch
 import numpy as np
 from library import Library
 from torch.utils.data import SubsetRandomSampler, DataLoader, TensorDataset
@@ -7,12 +6,12 @@ from torch.utils.data import SubsetRandomSampler, DataLoader, TensorDataset
 def get_data(batch_size=100, file_path='data/l2n4_bin/', state='hard'):
     """
     Args:
-        - batch_size: Size of batches
-        - file_path: Path of file location
-        - state: quantum state
+        batch_size: Size of batches
+        file_path: Path of file location
+        state: quantum state
     Returns:
-        - train_loaders: Array of Torch DataLoaders representing quantum states for training
-        - test_loaders: Array of Torch DataLoaders representing quantum states for testing
+        train_loaders: Array of Torch DataLoaders representing quantum states for training
+        test_loaders: Array of Torch DataLoaders representing quantum states for testing
     Raises:
     """
     train_loaders, test_loaders = __to_torch(
@@ -24,10 +23,10 @@ def get_data(batch_size=100, file_path='data/l2n4_bin/', state='hard'):
 def __get_raw_data(file_path, state='hard'):
     """
     Args:
-        - file_path: Path of file location
-        - state: quantum state
+        file_path: Path of file location
+        state: quantum state
     Returns:
-        - raw: Numpy array of quantum states
+        raw: Numpy array of quantum states
     Raises:
     """
     library = Library(file_path)
@@ -39,11 +38,11 @@ def __get_raw_data(file_path, state='hard'):
 def __get_samplers(dataset, percent_test=0.3):
     """
     Args:
-        - dataset: Dataset to be sampled
-        - percent_test: Portion of dataset that will be used for testing
+        dataset: Dataset to be sampled
+        percent_test: Portion of dataset that will be used for testing
     Returns:
-        - train_sampler: Indices of training data
-        - test_sampler: Indices of testing data
+        train_sampler: Indices of training data
+        test_sampler: Indices of testing data
     Raises:
     """
     dataset_size = len(dataset)
@@ -62,11 +61,11 @@ def __get_samplers(dataset, percent_test=0.3):
 def __to_torch(batch_size, file_path, state='hard'):
     """
     Args:
-        - batch_size: Size of batches
-        - file_path: Path of file location
+        batch_size: Size of batches
+        file_path: Path of file location
     Returns:
-        - train_loaders: Array of Torch DataLoaders representing quantum states for training
-        - test_loaders: Array of Torch DataLoaders representing quantum states for testin
+        train_loaders: Array of Torch DataLoaders representing quantum states for training
+        test_loaders: Array of Torch DataLoaders representing quantum states for testin
     Raises:
     """
     raw = __get_raw_data(file_path, state=state)
